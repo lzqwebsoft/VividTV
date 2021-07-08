@@ -30,6 +30,16 @@ import java.lang.ref.WeakReference
  */
 class SplashActivity : Activity() {
 
+    companion object {
+        private const val HANDLER_ANIMATION_ENDED = 0
+        private const val HANDLER_DELAY_MILLIS = 1000
+
+        private const val ANIMATION_DURATION = 3000     // 动画持续时间
+
+        const val PERMISSION_REQUEST_WRITE_SETTINGS = 0
+    }
+
+
     private lateinit var splashMeetDaysTv: TextView
     private lateinit var splashBirthDaysTv: TextView
 
@@ -94,7 +104,6 @@ class SplashActivity : Activity() {
     }
 
     private fun animationEnded() {
-        //phone
         if (MySharePreferences.getInstance(this).getString(Constant.NEED_CHECK_PERMISSION).isNullOrEmpty()) {
             checkPermission()
         } else {
@@ -107,11 +116,7 @@ class SplashActivity : Activity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 showDialog()
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_SETTINGS),
-                    PERMISSION_REQUEST_WRITE_SETTINGS
-                )
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_SETTINGS), PERMISSION_REQUEST_WRITE_SETTINGS)
             }
         } else {
             intentToMainActivity()
@@ -155,15 +160,12 @@ class SplashActivity : Activity() {
         splashMeetDaysTv.tag = null
         splashBirthDaysTv.tag = null
 
-        val intent = Intent()
-        intent.setClass(this@SplashActivity, MediaPlayerActivity::class.java)
-
+        val intent = Intent(this@SplashActivity, MediaPlayerActivity::class.java)
+        // 读取应用最后退出时播放的频道源
         val channelsBeans = MyApplication.get().getVideoData(this@SplashActivity)
         val lastId = MyApplication.get().getLastId(this@SplashActivity)
         var lastUrl = MyApplication.get().getLastUrl(this@SplashActivity)
-        if (lastUrl == "" && channelsBeans.isNotEmpty()
-            && channelsBeans[0].url1!!.isNotEmpty()
-        ) {
+        if (lastUrl == "" && channelsBeans.isNotEmpty() && channelsBeans[0].url1!!.isNotEmpty()) {
             lastUrl = channelsBeans[0].url1
         }
         intent.putExtra(MediaPlayerActivity.EXTRA_ID, lastId)
@@ -175,12 +177,12 @@ class SplashActivity : Activity() {
         overridePendingTransition(R.anim.fade_in, R.anim.no_change)
     }
 
+    // 检查用户是否有系统设置权限
     private fun isPermissionEnabled(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Settings.System.canWrite(this)
         } else {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS) ==
-                    PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS) == PackageManager.PERMISSION_GRANTED
         }
     }
 
@@ -192,15 +194,4 @@ class SplashActivity : Activity() {
             }
         }
     }
-
-    companion object {
-
-        private const val HANDLER_ANIMATION_ENDED = 0
-        private const val HANDLER_DELAY_MILLIS = 1000
-
-        private const val ANIMATION_DURATION = 3000
-
-        const val PERMISSION_REQUEST_WRITE_SETTINGS = 0
-    }
-
 }

@@ -6,9 +6,8 @@ import java.util.*
 
 object Utils {
 
-
-    private const val START_DATE = "19/08/2016"
-    private const val BIRTH_DATE = "09/01/2019"
+    private const val START_DATE = "19/08/2016"   // 见面时间
+    private const val BIRTH_DATE = "09/01/2019"   // 生日时间
 
     val meetDays: Int
         get() = getDays(START_DATE)

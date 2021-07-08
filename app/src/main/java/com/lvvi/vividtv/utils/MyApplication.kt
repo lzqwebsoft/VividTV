@@ -21,6 +21,21 @@ import java.util.*
  */
 class MyApplication : MultiDexApplication() {
 
+    companion object {
+        lateinit var context: MyApplication
+        private var myApplication: MyApplication? = null
+            get() {
+                if (field == null) {
+                    field = MyApplication()
+                }
+                return field
+            }
+
+        fun get(): MyApplication {
+            return myApplication!!
+        }
+    }
+
     private var sharedPreferences: MySharePreferences? = null
     private var gson: Gson? = null
 
@@ -40,6 +55,7 @@ class MyApplication : MultiDexApplication() {
         gson = Gson()
     }
 
+    // 从LeanCloud平台中获取电视直播资源
     private fun setVideoData() {
         val query = AVQuery<AVObject>(Constant.AVOBJECT_CLASS_VIDEO_DATA)
         query.addAscendingOrder(Constant.AVOBJECT_ORDER)
@@ -173,22 +189,5 @@ class MyApplication : MultiDexApplication() {
         }
         return sharedPreferences!!.getString(Constant.LAST_MEDIA_URL)
     }
-
-    companion object {
-
-        lateinit var context: MyApplication
-        private var myApplication: MyApplication? = null
-            get() {
-                if (field == null) {
-                    field = MyApplication()
-                }
-                return field
-            }
-
-        fun get(): MyApplication {
-            return myApplication!!
-        }
-    }
-
 
 }

@@ -11,7 +11,9 @@ import androidx.core.content.ContextCompat
 import com.lvvi.vividtv.R
 import com.lvvi.vividtv.model.VideoDataModelNew
 
-
+/**
+ * 节目源列表适配器
+ */
 class ChannelNameAdapter(private val context: Context) : BaseAdapter() {
     private var channelsBeans: List<VideoDataModelNew>? = null
     private var currId: String? = null

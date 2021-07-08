@@ -35,8 +35,7 @@ import kotlin.math.round
 /**
  * 直播视频播放页面
  */
-class MediaPlayerActivity : Activity(),
-    SurfaceHolder.Callback, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
+class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
 
     companion object {
@@ -64,16 +63,16 @@ class MediaPlayerActivity : Activity(),
 
     private lateinit var mainRl: RelativeLayout
     private lateinit var progressBar: ProgressBar
-    private lateinit var nameRl: RelativeLayout
-    private lateinit var previewIv: ImageView
-    private lateinit var nameLv: ListView
+    private lateinit var nameRl: RelativeLayout      // 播放源面板
+    private lateinit var previewIv: ImageView        // 节目预览图片
+    private lateinit var nameLv: ListView            // 播放源列表
 
-    private lateinit var infoLl: LinearLayout
-    private lateinit var infoTv: TextView
-    private lateinit var currTv: TextView
-    private lateinit var progressSeekBar: SeekBar
-    private lateinit var startTv: TextView
-    private lateinit var endTv: TextView
+    private lateinit var infoLl: LinearLayout        // 节目信息面板
+    private lateinit var infoTv: TextView            // 节目名称
+    private lateinit var currTv: TextView            // 当前时间
+    private lateinit var progressSeekBar: SeekBar    // 节目播放进度
+    private lateinit var startTv: TextView           // 节目开始时间
+    private lateinit var endTv: TextView             // 节目结束时间
 
     private lateinit var settingLl: LinearLayout
     private lateinit var settingLottieAnimationView: LottieAnimationView
@@ -129,6 +128,7 @@ class MediaPlayerActivity : Activity(),
         }
     }
 
+    // 初始化界面
     private fun initView() {
         val windowManager = windowManager
         val metrics = DisplayMetrics()
@@ -144,20 +144,21 @@ class MediaPlayerActivity : Activity(),
         mainRl = findViewById(R.id.main_rl)
 
         progressBar = findViewById(R.id.progressBar)
-        nameRl = findViewById(R.id.name_rl)
+        nameRl = findViewById(R.id.name_rl)   // 播放源面板
 
-        infoLl = findViewById(R.id.info_ll)
-        infoTv = findViewById(R.id.info_tv)
-        currTv = findViewById(R.id.curr_tv)
-        progressSeekBar = findViewById(R.id.progress_seek_bar)
-        startTv = findViewById(R.id.start_tv)
-        endTv = findViewById(R.id.end_tv)
+        infoLl = findViewById(R.id.info_ll)    // 节目信息面板
+        infoTv = findViewById(R.id.info_tv)    // 节目名称
+        currTv = findViewById(R.id.curr_tv)    // 当前时间
+        progressSeekBar = findViewById(R.id.progress_seek_bar)   // 节目播放进度
+        startTv = findViewById(R.id.start_tv)   // 节目开始时间
+        endTv = findViewById(R.id.end_tv)       // 节目结束时间
 
         progressSeekBar.setPadding(0, 0, 0, 0)
         progressSeekBar.max = 100
 
         infoLl.layoutParams.width = screenWidth / 3
 
+        // 节目预览图片
         previewIv = findViewById(R.id.preview_iv)
         previewIv.layoutParams.width = screenWidth / 3
         previewIv.layoutParams.height = screenWidth / 3 * 9 / 16
@@ -167,16 +168,20 @@ class MediaPlayerActivity : Activity(),
         nameLv.adapter = nameAdapter
         nameLv.layoutParams.width = screenWidth / 3
 
+        // 点击即切换播放源
         nameLv.onItemClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
+            // 收起节目面板列表
             if (nameRl.visibility == View.VISIBLE) {
                 nameRl.visibility = View.GONE
             }
+            // 切换当前播放源
             if (currNamePosition != i) {
                 currNamePosition = i
                 play()
             }
         }
 
+        // 选择播放源，显示节目预览信息
         nameLv.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
                 showPreview(view, screenHeight, i)
@@ -187,10 +192,7 @@ class MediaPlayerActivity : Activity(),
                 if (handler.hasMessages(HANDLER_AUTO_CLOSE_MENU)) {
                     handler.removeMessages(HANDLER_AUTO_CLOSE_MENU)
                 }
-                handler.sendEmptyMessageDelayed(
-                    HANDLER_AUTO_CLOSE_MENU,
-                    AUTO_CLOSE_MENU_DELAY.toLong()
-                )
+                handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_MENU, AUTO_CLOSE_MENU_DELAY.toLong())
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>) {}
@@ -200,19 +202,11 @@ class MediaPlayerActivity : Activity(),
 
         //phone
         nameLv.setOnScrollListener(object : AbsListView.OnScrollListener {
-            override fun onScroll(
-                view: AbsListView?,
-                firstVisibleItem: Int,
-                visibleItemCount: Int,
-                totalItemCount: Int
-            ) {
+            override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
                 if (handler.hasMessages(HANDLER_AUTO_CLOSE_MENU)) {
                     handler.removeMessages(HANDLER_AUTO_CLOSE_MENU)
                 }
-                handler.sendEmptyMessageDelayed(
-                    HANDLER_AUTO_CLOSE_MENU,
-                    AUTO_CLOSE_MENU_DELAY.toLong()
-                )
+                handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_MENU, AUTO_CLOSE_MENU_DELAY.toLong())
             }
 
             override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
@@ -368,6 +362,7 @@ class MediaPlayerActivity : Activity(),
         }
     }
 
+    // 显示当前的节目预览图片
     private fun showPreview(view: View, screenHeight: Int, i: Int) {
         if (channelsBeans[i].icon == "") {
             previewIv.visibility = View.GONE
