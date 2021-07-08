@@ -1,7 +1,9 @@
-![](https://github.com/lvliheng/VividTv/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png)
+![](https://github.com/lzqwebsoft/VividTv/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png)
 
-Vivid TV--Android电视直播应用
+Android电视直播应用
 =
+
+基于[Vivid TV--Android](https://github.com/lvliheng/VividTv)项目的启发，创建的Android电视直播应用。
 
 ### 功能：
 
@@ -17,4 +19,4 @@ Vivid TV--Android电视直播应用
 
 ### 预览：
 
-![](https://github.com/lvliheng/VividTv/blob/master/screenshots/vividtv.gif)
+![](https://github.com/lzqwebsoft/VividTv/blob/master/screenshots/vividtv.gif)

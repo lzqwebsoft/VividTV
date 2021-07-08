@@ -3,6 +3,7 @@ package com.lvvi.vividtv.utils
 import android.content.Context
 import android.util.Log
 import androidx.multidex.MultiDexApplication
+import cn.leancloud.AVLogger
 import cn.leancloud.AVOSCloud
 import cn.leancloud.AVObject
 import cn.leancloud.AVQuery
@@ -30,7 +31,9 @@ class MyApplication : MultiDexApplication() {
     }
 
     private fun init() {
+        // 初始化LeanCloud云平台
         AVOSCloud.initialize(this, Constant.LEANCLOUD_APP_ID, Constant.LEANCLOUD_APP_KEY)
+        AVOSCloud.setLogLevel(AVLogger.Level.DEBUG)  // 开启DEBUG
 
         context = this
         sharedPreferences = MySharePreferences.getInstance(context)
@@ -62,6 +65,7 @@ class MyApplication : MultiDexApplication() {
                     videoData.startTime = ""
                     videoData.endTime = ""
 
+                    Log.e("---Data--->", videoData.toString())
                     videoDataList.add(videoData)
                 }
 

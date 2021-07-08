@@ -15,6 +15,9 @@ import com.lvvi.vividtv.utils.MyApplication
 import java.util.*
 import kotlin.collections.ArrayList
 
+/**
+ * 更新频道节目信息服务
+ */
 class UpdateChannelInfoService : Service() {
 
     private var sharedPreferences: MySharePreferences? = null
@@ -57,8 +60,10 @@ class UpdateChannelInfoService : Service() {
 
         val mediaData = sharedPreferences!!.getString(Constant.MEDIA_DATA)
         if (mediaData != "") {
-            channelsBeans = gson!!.fromJson(mediaData,
-                    object : TypeToken<List<VideoDataModelNew>>() {}.type)
+            channelsBeans = gson!!.fromJson(
+                mediaData,
+                object : TypeToken<List<VideoDataModelNew>>() {}.type
+            )
         }
 
         var channelInfoModel = ChannelInfoModel()

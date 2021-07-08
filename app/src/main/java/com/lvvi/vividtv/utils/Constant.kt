@@ -42,8 +42,8 @@ object Constant {
             + CCTV_11 + "," + CCTV_12 + "," + CCTV_15 + "," + CCTV_17)
 
 
-    const val LEANCLOUD_APP_ID = "jn3T5WIHvGJN53R4DnD2wlLN-MdYXbMMI"
-    const val LEANCLOUD_APP_KEY = "tKdmdQYynhfcxoMgto3o89L1"
+    const val LEANCLOUD_APP_ID = "7CQcmGSw9nOKFOOAOFymKAhc-9Nh9j0Va"
+    const val LEANCLOUD_APP_KEY = "XjuJl1jR7Y17B5256KBTGEQn"
     const val AVOBJECT_CLASS_VIDEO_DATA = "video_data"
     const val AVOBJECT_ID = "id"
     const val AVOBJECT_ORDER = "order"

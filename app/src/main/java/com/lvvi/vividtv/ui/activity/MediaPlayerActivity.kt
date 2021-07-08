@@ -10,7 +10,6 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.*
 import android.provider.Settings
 import android.util.DisplayMetrics
@@ -30,13 +29,36 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.math.abs
 import kotlin.math.round
 
+/**
+ * 直播视频播放页面
+ */
 class MediaPlayerActivity : Activity(),
-        SurfaceHolder.Callback, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
+    SurfaceHolder.Callback, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
+
+    companion object {
+
+        private const val TAG = "MediaPlayerActivity"
+
+        const val HANDLER_BACK = 0
+        const val HANDLER_FINISH = 1
+        const val HANDLER_AUTO_CLOSE_MENU = 2
+        const val HANDLER_AUTO_CLOSE_INFO = 3
+        const val HANDLER_AUTO_CLOSE_SETTINGS = 4
+
+        const val AUTO_CLOSE_MENU_DELAY = 5000
+        const val AUTO_CLOSE_INFO_DELAY = 3000
+        const val FINISH_DELAY = 2000
+        const val EXTRA_ID = "id"
+        const val EXTRA_URL = "url"
+
+        const val DEFAULT_VIDEO_URL =
+            "https://www.apple.com/105/media/cn/mac/family/2018/46c4b917_abfd_45a3_9b51_" +
+                    "4e3054191797/films/bruce/mac-bruce-tpl-cn-2018_1280x720h.mp4"
+    }
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -45,7 +67,7 @@ class MediaPlayerActivity : Activity(),
     private lateinit var nameRl: RelativeLayout
     private lateinit var previewIv: ImageView
     private lateinit var nameLv: ListView
- 
+
     private lateinit var infoLl: LinearLayout
     private lateinit var infoTv: TextView
     private lateinit var currTv: TextView
@@ -74,6 +96,7 @@ class MediaPlayerActivity : Activity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 设置手机屏幕长亮
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_media_player)
 
@@ -91,16 +114,19 @@ class MediaPlayerActivity : Activity(),
         initPlayer()
     }
 
+    // 绑定并启动节目更新服务
     private fun bindService() {
         connection = object : ServiceConnection {
             override fun onServiceDisconnected(p0: ComponentName?) {
             }
 
             override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+
             }
         }
-        Intent(this, UpdateChannelInfoService::class.java)
-            .also { intent ->  bindService(intent, connection, Context.BIND_AUTO_CREATE) }
+        Intent(this, UpdateChannelInfoService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun initView() {
@@ -161,7 +187,10 @@ class MediaPlayerActivity : Activity(),
                 if (handler.hasMessages(HANDLER_AUTO_CLOSE_MENU)) {
                     handler.removeMessages(HANDLER_AUTO_CLOSE_MENU)
                 }
-                handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_MENU, AUTO_CLOSE_MENU_DELAY.toLong())
+                handler.sendEmptyMessageDelayed(
+                    HANDLER_AUTO_CLOSE_MENU,
+                    AUTO_CLOSE_MENU_DELAY.toLong()
+                )
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>) {}
@@ -171,11 +200,19 @@ class MediaPlayerActivity : Activity(),
 
         //phone
         nameLv.setOnScrollListener(object : AbsListView.OnScrollListener {
-            override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
+            override fun onScroll(
+                view: AbsListView?,
+                firstVisibleItem: Int,
+                visibleItemCount: Int,
+                totalItemCount: Int
+            ) {
                 if (handler.hasMessages(HANDLER_AUTO_CLOSE_MENU)) {
                     handler.removeMessages(HANDLER_AUTO_CLOSE_MENU)
                 }
-                handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_MENU, AUTO_CLOSE_MENU_DELAY.toLong())
+                handler.sendEmptyMessageDelayed(
+                    HANDLER_AUTO_CLOSE_MENU,
+                    AUTO_CLOSE_MENU_DELAY.toLong()
+                )
             }
 
             override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
@@ -220,7 +257,8 @@ class MediaPlayerActivity : Activity(),
         var maxValue = 0
         var lastMovingDistance = 0f
         var percent = 1
-        val originalMode = Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE)
+        val originalMode =
+            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE)
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -228,10 +266,12 @@ class MediaPlayerActivity : Activity(),
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (event.x > 100 && event.x < screenWidth / 2
-                        && event.y > 100 && event.y < screenHeight - 100) {
+                        && event.y > 100 && event.y < screenHeight - 100
+                    ) {
                         //brightness
                         currentValue = Settings.System.getFloat(
-                            contentResolver, Settings.System.SCREEN_BRIGHTNESS)
+                            contentResolver, Settings.System.SCREEN_BRIGHTNESS
+                        )
                         minValue = 1
                         maxValue = 255
                         isLightChanging = true
@@ -239,9 +279,11 @@ class MediaPlayerActivity : Activity(),
                         percent = 1
                     }
                     if (event.x > screenWidth / 2 && event.x < screenWidth - 100
-                        && event.y > 100 && event.y < screenHeight - 100) {
+                        && event.y > 100 && event.y < screenHeight - 100
+                    ) {
                         //volume
-                        currentValue = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+                        currentValue =
+                            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
                         minValue = 1 / 10
                         maxValue = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                         isLightChanging = false
@@ -262,10 +304,10 @@ class MediaPlayerActivity : Activity(),
                         }
 
                         currentValue += if (abs(event.y - startY) > lastMovingDistance) {
-                                -(event.y - startY) / 20 * maxValue / screenHeight
-                            } else {
-                                (event.y - startY) / 20 * maxValue / screenHeight
-                            }
+                            -(event.y - startY) / 20 * maxValue / screenHeight
+                        } else {
+                            (event.y - startY) / 20 * maxValue / screenHeight
+                        }
 
                         if (currentValue < minValue) {
                             currentValue = minValue.toFloat()
@@ -276,14 +318,20 @@ class MediaPlayerActivity : Activity(),
                         }
 
                         if (isLightChanging) {
-                            Settings.System.putInt(contentResolver,
+                            Settings.System.putInt(
+                                contentResolver,
                                 Settings.System.SCREEN_BRIGHTNESS_MODE,
-                                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)
-                            Settings.System.putInt(contentResolver,
-                                Settings.System.SCREEN_BRIGHTNESS, round(currentValue).toInt())
+                                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                            )
+                            Settings.System.putInt(
+                                contentResolver,
+                                Settings.System.SCREEN_BRIGHTNESS, round(currentValue).toInt()
+                            )
                         } else {
-                            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                                currentValue.toInt(), AudioManager.FLAG_PLAY_SOUND)
+                            audioManager.setStreamVolume(
+                                AudioManager.STREAM_MUSIC,
+                                currentValue.toInt(), AudioManager.FLAG_PLAY_SOUND
+                            )
                         }
 
                         if (settingLl.visibility == View.VISIBLE) {
@@ -298,10 +346,15 @@ class MediaPlayerActivity : Activity(),
                     if (abs(event.x - startX) > 10 || abs(event.y - startY) > 10) {
                         currentValue = -1f
 
-                        Settings.System.putInt(contentResolver,
-                            Settings.System.SCREEN_BRIGHTNESS_MODE, originalMode)
+                        Settings.System.putInt(
+                            contentResolver,
+                            Settings.System.SCREEN_BRIGHTNESS_MODE, originalMode
+                        )
 
-                        handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_SETTINGS, FINISH_DELAY.toLong())
+                        handler.sendEmptyMessageDelayed(
+                            HANDLER_AUTO_CLOSE_SETTINGS,
+                            FINISH_DELAY.toLong()
+                        )
                     } else {
                         if (nameRl.visibility == View.GONE) {
                             openMenu()
@@ -333,12 +386,11 @@ class MediaPlayerActivity : Activity(),
         params.topMargin = top
         previewIv.layoutParams = params
 
-        Glide
-                .with(this@MediaPlayerActivity)
-                .load(channelsBeans[i].icon)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(previewIv)
+        Glide.with(this@MediaPlayerActivity)
+            .load(channelsBeans[i].icon)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .into(previewIv)
     }
 
     private fun initData() {
@@ -610,8 +662,7 @@ class MediaPlayerActivity : Activity(),
                     mediaPlayerActivity.toast.cancel()
                     mediaPlayerActivity.finish()
                 } else {
-                    mediaPlayerActivity.toast.setText(
-                            mediaPlayerActivity.getString(R.string.exit_tip))
+                    mediaPlayerActivity.toast.setText(mediaPlayerActivity.getString(R.string.exit_tip))
                     mediaPlayerActivity.toast.show()
 
                     sendEmptyMessageDelayed(HANDLER_FINISH, FINISH_DELAY.toLong())
@@ -651,26 +702,5 @@ class MediaPlayerActivity : Activity(),
             mediaPlayer = null
         }
         unbindService(connection)
-    }
-
-    companion object {
-
-        private const val TAG = "MediaPlayerActivity"
-
-        const val HANDLER_BACK = 0
-        const val HANDLER_FINISH = 1
-        const val HANDLER_AUTO_CLOSE_MENU = 2
-        const val HANDLER_AUTO_CLOSE_INFO = 3
-        const val HANDLER_AUTO_CLOSE_SETTINGS = 4
-
-        const val AUTO_CLOSE_MENU_DELAY = 5000
-        const val AUTO_CLOSE_INFO_DELAY = 3000
-        const val FINISH_DELAY = 2000
-        const val EXTRA_ID = "id"
-        const val EXTRA_URL = "url"
-
-        const val DEFAULT_VIDEO_URL =
-                "https://www.apple.com/105/media/cn/mac/family/2018/46c4b917_abfd_45a3_9b51_" +
-                        "4e3054191797/films/bruce/mac-bruce-tpl-cn-2018_1280x720h.mp4"
     }
 }

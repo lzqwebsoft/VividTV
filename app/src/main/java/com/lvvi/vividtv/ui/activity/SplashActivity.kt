@@ -25,6 +25,9 @@ import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.utils.Utils
 import java.lang.ref.WeakReference
 
+/**
+ * 启动页面
+ */
 class SplashActivity : Activity() {
 
     private lateinit var splashMeetDaysTv: TextView
@@ -81,7 +84,7 @@ class SplashActivity : Activity() {
 
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            val activity = weakReference.get()?:return
+            val activity = weakReference.get() ?: return
             when (msg.what) {
                 HANDLER_ANIMATION_ENDED -> {
                     activity.animationEnded()
@@ -159,7 +162,8 @@ class SplashActivity : Activity() {
         val lastId = MyApplication.get().getLastId(this@SplashActivity)
         var lastUrl = MyApplication.get().getLastUrl(this@SplashActivity)
         if (lastUrl == "" && channelsBeans.isNotEmpty()
-            && channelsBeans[0].url1!!.isNotEmpty()) {
+            && channelsBeans[0].url1!!.isNotEmpty()
+        ) {
             lastUrl = channelsBeans[0].url1
         }
         intent.putExtra(MediaPlayerActivity.EXTRA_ID, lastId)

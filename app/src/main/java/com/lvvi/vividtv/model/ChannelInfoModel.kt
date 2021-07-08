@@ -1,5 +1,9 @@
 package com.lvvi.vividtv.model
 
+/**
+ * 通过调用iepg.app.cctv.com获取
+ * 当前直播播放的频道节目信息对象
+ */
 class ChannelInfoModel {
     /**
      * code : 200
