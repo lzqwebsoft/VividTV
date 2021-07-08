@@ -36,7 +36,12 @@ class HttpHelper private constructor() {
      * @param requestBody 请求参数
      * @param callBack 回调方法
      */
-    private fun request(type: Int, url: String, requestBody: RequestBody?, callBack: HttpCallBack?) {
+    private fun request(
+        type: Int,
+        url: String,
+        requestBody: RequestBody?,
+        callBack: HttpCallBack?
+    ) {
         try {
             if (showLog) Log.e(TAG, "→→→ $url ←←←")
             if (url == "") {
@@ -44,29 +49,29 @@ class HttpHelper private constructor() {
             }
 
             val okHttpClient = OkHttpClient.Builder()
-                    .connectTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
-                    .readTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
-                    .writeTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
-                    .build()
+                .connectTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
+                .readTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
+                .writeTimeout(CONNECT_TIMEOUT.toLong(), TimeUnit.SECONDS)
+                .build()
 
             var tempRequest = Request.Builder()
-                    .url(url)
-                    .build()
+                .url(url)
+                .build()
             when (type) {
                 REQUEST_TYPE_GET -> tempRequest = Request.Builder()
-                        .url(url)
-                        .build()
+                    .url(url)
+                    .build()
                 REQUEST_TYPE_POST -> if (requestBody != null) {
                     tempRequest = Request.Builder()
-                            .url(url)
-                            .post(requestBody)
-                            .build()
+                        .url(url)
+                        .post(requestBody)
+                        .build()
                 }
                 REQUEST_TYPE_DELETE -> if (requestBody != null) {
                     tempRequest = Request.Builder()
-                            .url(url)
-                            .delete(requestBody)
-                            .build()
+                        .url(url)
+                        .delete(requestBody)
+                        .build()
                 }
                 else -> {
                 }
@@ -77,7 +82,7 @@ class HttpHelper private constructor() {
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     if (!TextUtils.isEmpty(e.message)) {
-                        if (showLog) Log.e(TAG, e.message)
+                        if (showLog) e!!.message?.let { Log.e(TAG, it) }
                     }
                     callBack?.onFailure(FAIL_MSG)
                 }
@@ -86,7 +91,7 @@ class HttpHelper private constructor() {
                     try {
                         val result = response.body()?.string()
                         if (showLog) Log.e(TAG, "↓↓↓ $url ↓↓↓")
-                        if (showLog) Log.e(TAG, result)
+                        if (showLog) result?.let { Log.e(TAG, it) }
 
                         if (result == null) {
                             callBack?.onError(ERROR_MSG)
@@ -133,8 +138,7 @@ class HttpHelper private constructor() {
 
 
         private var httpHelper: HttpHelper? = null
-
-            get(){
+            get() {
                 if (field == null) {
                     field = HttpHelper()
                 }

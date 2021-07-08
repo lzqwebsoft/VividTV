@@ -1,17 +1,12 @@
 package com.lvvi.vividtv.utils
 
-import android.app.Application
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import android.util.Log
+import androidx.multidex.MultiDexApplication
 import cn.leancloud.AVOSCloud
 import cn.leancloud.AVObject
 import cn.leancloud.AVQuery
 import com.lvvi.vividtv.model.VideoDataModelNew
-import com.lvvi.vividtv.service.UpdateChannelInfoService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.Observer
@@ -23,7 +18,7 @@ import java.util.*
 /**
  * Created by lvliheng on 2018/7/12 at 17:08.
  */
-class MyApplication : Application() {
+class MyApplication : MultiDexApplication() {
 
     private var sharedPreferences: MySharePreferences? = null
     private var gson: Gson? = null
@@ -55,7 +50,7 @@ class MyApplication : Application() {
             override fun onNext(avObjects: List<AVObject>) {
                 Log.e("application", "setVideoData onNext")
                 val videoDataList = ArrayList<VideoDataModelNew>()
-                var videoData : VideoDataModelNew?
+                var videoData: VideoDataModelNew?
                 for (avObject in avObjects) {
                     videoData = VideoDataModelNew()
                     videoData.id = avObject.getString(Constant.AVOBJECT_ID)
@@ -137,10 +132,12 @@ class MyApplication : Application() {
         }
         val mediaData = sharedPreferences!!.getString(Constant.MEDIA_DATA)
         if (mediaData != "") {
-            channelsBeans = gson!!.fromJson(mediaData,
-                    object : TypeToken<List<VideoDataModelNew>>() {
+            channelsBeans = gson!!.fromJson(
+                mediaData,
+                object : TypeToken<List<VideoDataModelNew>>() {
 
-                    }.type)
+                }.type
+            )
         }
         return channelsBeans
     }
@@ -177,13 +174,13 @@ class MyApplication : Application() {
 
         lateinit var context: MyApplication
         private var myApplication: MyApplication? = null
-
             get() {
                 if (field == null) {
                     field = MyApplication()
                 }
                 return field
             }
+
         fun get(): MyApplication {
             return myApplication!!
         }

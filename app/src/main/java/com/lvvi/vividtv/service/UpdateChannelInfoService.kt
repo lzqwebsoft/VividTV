@@ -2,10 +2,7 @@ package com.lvvi.vividtv.service
 
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
 import android.os.IBinder
-import android.util.Log
-import androidx.core.util.rangeTo
 import com.lvvi.vividtv.model.ChannelInfoModel
 import com.lvvi.vividtv.model.VideoDataModelNew
 import com.lvvi.vividtv.utils.HttpHelper
@@ -17,7 +14,6 @@ import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.log
 
 class UpdateChannelInfoService : Service() {
 
