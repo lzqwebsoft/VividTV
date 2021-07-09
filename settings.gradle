@@ -1,2 +1,9 @@
 include ':app'
+include ':ijkplayer:ijkplayer-armv5', ':ijkplayer:ijkplayer-x86_64'
+include ':ijkplayer:ijkplayer-armv7a'
+include ':ijkplayer:ijkplayer-arm64'
+include ':ijkplayer:ijkplayer-x86'
+
+include ':ijkplayer:ijkplayer-java'
+include ':ijkplayer:ijkplayer-exo'
 rootProject.name = "VividTV"

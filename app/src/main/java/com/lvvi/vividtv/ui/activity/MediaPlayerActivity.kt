@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.*
 import android.provider.Settings
 import android.util.DisplayMetrics
@@ -25,6 +24,8 @@ import com.lvvi.vividtv.model.VideoDataModelNew
 import com.lvvi.vividtv.service.UpdateChannelInfoService
 import com.lvvi.vividtv.ui.adapter.ChannelNameAdapter
 import com.lvvi.vividtv.utils.MyApplication
+import tv.danmaku.ijk.media.player.IMediaPlayer
+import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
@@ -35,8 +36,8 @@ import kotlin.math.round
 /**
  * 直播视频播放页面
  */
-class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
-    MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
+class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnPreparedListener,
+    IMediaPlayer.OnErrorListener, IMediaPlayer.OnInfoListener, IMediaPlayer.OnBufferingUpdateListener {
 
     companion object {
 
@@ -59,7 +60,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
                     "4e3054191797/films/bruce/mac-bruce-tpl-cn-2018_1280x720h.mp4"
     }
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var mediaPlayer: IMediaPlayer? = null
+    private var mEnableMediaCodec: Boolean = false    // 是否开启硬解码
 
     private lateinit var mainRl: RelativeLayout
     private lateinit var progressBar: ProgressBar
@@ -458,20 +460,49 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
     }
 
     private fun initPlayer() {
-        mediaPlayer = MediaPlayer()
-        mediaPlayer?.setOnCompletionListener(this)
+        mediaPlayer = createPlayer()
         mediaPlayer?.setOnPreparedListener(this)
         mediaPlayer?.setOnErrorListener(this)
         mediaPlayer?.setOnInfoListener(this)
         mediaPlayer?.setOnBufferingUpdateListener(this)
 
         try {
-            mediaPlayer?.setDataSource(currUrl)
+            mediaPlayer?.dataSource = currUrl
         } catch (e: IOException) {
             e.printStackTrace()
             toast.setText(R.string.cant_play_tip)
             toast.show()
         }
+    }
+
+    // 创建一个新的player
+    private fun createPlayer(): IMediaPlayer? {
+        val ijkMediaPlayer = IjkMediaPlayer()
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32.toLong())
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 3)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 1)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 100)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp");
+        ijkMediaPlayer.setVolume(1.0f, 1.0f)
+        setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
+        return ijkMediaPlayer
+    }
+
+    //设置是否开启硬解码
+    private fun setEnableMediaCodec(ijkMediaPlayer: IjkMediaPlayer, isEnable: Boolean) {
+        val value = if (isEnable) 1 else 0
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value.toLong()) //开启硬解码
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", value.toLong())
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", value.toLong())
+    }
+
+    fun setEnableMediaCodec(isEnable: Boolean) {
+        mEnableMediaCodec = isEnable
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
@@ -488,11 +519,11 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
         Log.i(TAG, "surfaceDestroyed: ")
     }
 
-    override fun onCompletion(mediaPlayer: MediaPlayer) {
+    override fun onCompletion(mediaPlayer: IMediaPlayer) {
         Log.i(TAG, "onCompletion: ")
     }
 
-    override fun onPrepared(mediaPlayer: MediaPlayer) {
+    override fun onPrepared(mediaPlayer: IMediaPlayer) {
         Log.i(TAG, "onPrepared: ")
         if (progressBar.visibility == View.VISIBLE) {
             progressBar.visibility = View.GONE
@@ -505,8 +536,11 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
         showInfo()
     }
 
-    override fun onError(mediaPlayer: MediaPlayer, i: Int, i1: Int): Boolean {
+    override fun onError(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
         Log.e(TAG, "onError: i: $i i1: $i1")
+//        if (i == -10000) {
+//            mediaPlayer.reset()
+//        }
         if (currUrl == channelsBeans[currNamePosition].url1) {
             tryOtherLine()
         } else {
@@ -529,6 +563,12 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
                 progressBar.visibility = View.VISIBLE
             }
             mediaPlayer?.reset()
+//            mediaPlayer?.release()
+//            mediaPlayer = null
+//            initPlayer()
+
+            val videoSv = findViewById<SurfaceView>(R.id.video_sv)
+            mediaPlayer?.setDisplay(videoSv.holder)
             try {
                 if (currNamePosition < channelsBeans.size) {
                     currId = channelsBeans[currNamePosition].id!!
@@ -536,7 +576,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
 
                     saveLastData()
 
-                    mediaPlayer?.setDataSource(currUrl)
+                    mediaPlayer?.dataSource = currUrl
 
                     nameAdapter.setCurrId(currId)
                     nameAdapter.notifyDataSetChanged()
@@ -558,7 +598,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
 
                 saveLastData()
 
-                mediaPlayer?.setDataSource(currUrl)
+                val videoSv = findViewById<SurfaceView>(R.id.video_sv)
+                mediaPlayer?.setDisplay(videoSv.holder)
+                mediaPlayer?.dataSource = currUrl
             } else {
                 showCantPlayTip()
             }
@@ -572,12 +614,12 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, MediaPlayer.OnCo
         MyApplication.get().setLastUrl(this@MediaPlayerActivity, currUrl)
     }
 
-    override fun onInfo(mediaPlayer: MediaPlayer, i: Int, i1: Int): Boolean {
+    override fun onInfo(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
         Log.e(TAG, "onInfo: i: $i i1: $i1")
         return false
     }
 
-    override fun onBufferingUpdate(mediaPlayer: MediaPlayer, i: Int) {
+    override fun onBufferingUpdate(mediaPlayer: IMediaPlayer, i: Int) {
         Log.i(TAG, "onBufferingUpdate: $i")
     }
 

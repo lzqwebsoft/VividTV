@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.lvvi.vividtv"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -48,4 +48,19 @@ dependencies {
 
     implementation 'com.alibaba:fastjson:1.1.70.android'
     implementation 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+
+    // =====================ijkplayer==========================
+    implementation project(':ijkplayer:ijkplayer-java')
+    implementation project(':ijkplayer:ijkplayer-exo')
+
+    implementation project(':ijkplayer:ijkplayer-armv5')
+    implementation project(':ijkplayer:ijkplayer-armv7a')
+    implementation project(':ijkplayer:ijkplayer-x86')
+
+    implementation project(':ijkplayer:ijkplayer-armv5')
+    implementation project(':ijkplayer:ijkplayer-armv7a')
+    implementation project(':ijkplayer:ijkplayer-arm64')
+    implementation project(':ijkplayer:ijkplayer-x86')
+    implementation project(':ijkplayer:ijkplayer-x86_64')
+    // =======================================================
 }
