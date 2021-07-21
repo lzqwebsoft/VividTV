@@ -13,4 +13,12 @@
     <string name="dialog_positive_button">设置</string>
     <string name="permission_tip">您可以根据需要前往设置页面修改权限</string>
     <string name="not_update">待更新</string>
+
+    <string name="source_link">直播源地址</string>
+    <string name="cancel">取消</string>
+    <string name="ok">确定</string>
+    <string name="please_input_source_link">请输入直播源地址</string>
+
+    <string name="source_history">直播源播放历史</string>
+    <string name="source_history_empty">暂无播放记录</string>
 </resources>

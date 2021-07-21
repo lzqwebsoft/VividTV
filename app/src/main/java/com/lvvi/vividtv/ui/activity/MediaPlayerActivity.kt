@@ -24,6 +24,9 @@ import com.lvvi.vividtv.model.VideoDataModelNew
 import com.lvvi.vividtv.service.UpdateChannelInfoService
 import com.lvvi.vividtv.ui.adapter.ChannelNameAdapter
 import com.lvvi.vividtv.utils.MyApplication
+import com.lvvi.vividtv.utils.MySharePreferences
+import com.lvvi.vividtv.widget.SourceHistoryDialog
+import com.lvvi.vividtv.widget.SourceLinkDialog
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
@@ -42,6 +45,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     companion object {
 
         private const val TAG = "MediaPlayerActivity"
+        private const val CUSTOM_SOURCE_ID = "custom"
 
         const val HANDLER_BACK = 0
         const val HANDLER_FINISH = 1
@@ -68,6 +72,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     private lateinit var nameRl: RelativeLayout      // 播放源面板
     private lateinit var previewIv: ImageView        // 节目预览图片
     private lateinit var nameLv: ListView            // 播放源列表
+
+    private lateinit var sourceLinkBtn: Button       // 播放源按钮
+    private lateinit var sourceHistoryBtn: Button    // 播放足迹按钮
 
     private lateinit var infoLl: LinearLayout        // 节目信息面板
     private lateinit var infoTv: TextView            // 节目名称
@@ -146,7 +153,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         mainRl = findViewById(R.id.main_rl)
 
         progressBar = findViewById(R.id.progressBar)
-        nameRl = findViewById(R.id.name_rl)   // 播放源面板
+        nameRl = findViewById(R.id.name_rl)              // 播放源面板
+        sourceLinkBtn = findViewById(R.id.source_link)   // 播放源地址按钮
+        sourceHistoryBtn = findViewById(R.id.history)    // 播放源足迹按钮
 
         infoLl = findViewById(R.id.info_ll)    // 节目信息面板
         infoTv = findViewById(R.id.info_tv)    // 节目名称
@@ -181,6 +190,32 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 currNamePosition = i
                 play()
             }
+        }
+
+        // 点击播放源按钮，弹出播放源对话框
+        sourceLinkBtn.setOnClickListener {
+            val dialog = SourceLinkDialog(this@MediaPlayerActivity)
+            dialog.confirmListener = {
+                // 收起节目面板列表
+                if (nameRl.visibility == View.VISIBLE) {
+                    nameRl.visibility = View.GONE
+                }
+                play(it)
+            }
+            dialog.show()
+        }
+
+        // 点击足迹按钮，弹出足迹对话框
+        sourceHistoryBtn.setOnClickListener {
+            val dialog = SourceHistoryDialog(this@MediaPlayerActivity)
+            dialog.onClickHistoryItem = {
+                // 收起节目面板列表
+                if (nameRl.visibility == View.VISIBLE) {
+                    nameRl.visibility = View.GONE
+                }
+                play(it)
+            }
+            dialog.show()
         }
 
         // 选择播放源，显示节目预览信息
@@ -233,8 +268,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Settings.System.canWrite(this)
         } else {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS) ==
-                    PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS) == PackageManager.PERMISSION_GRANTED
         }
     }
 
@@ -253,18 +287,15 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         var maxValue = 0
         var lastMovingDistance = 0f
         var percent = 1
-        val originalMode =
-            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE)
+        val originalMode = Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE)
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         mainRl.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (event.x > 100 && event.x < screenWidth / 2
-                        && event.y > 100 && event.y < screenHeight - 100
-                    ) {
-                        //brightness
+                    if (event.x > 100 && event.x < screenWidth / 2 && event.y > 100 && event.y < screenHeight - 100) {
+                        // brightness
                         currentValue = Settings.System.getFloat(
                             contentResolver, Settings.System.SCREEN_BRIGHTNESS
                         )
@@ -274,12 +305,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                         settingLottieAnimationView.setAnimation("player_brightness_icon_lottie.json")
                         percent = 1
                     }
-                    if (event.x > screenWidth / 2 && event.x < screenWidth - 100
-                        && event.y > 100 && event.y < screenHeight - 100
-                    ) {
+                    if (event.x > screenWidth / 2 && event.x < screenWidth - 100 && event.y > 100 && event.y < screenHeight - 100) {
                         //volume
-                        currentValue =
-                            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+                        currentValue = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
                         minValue = 1 / 10
                         maxValue = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                         isLightChanging = false
@@ -319,10 +347,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                                 Settings.System.SCREEN_BRIGHTNESS_MODE,
                                 Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
                             )
-                            Settings.System.putInt(
-                                contentResolver,
-                                Settings.System.SCREEN_BRIGHTNESS, round(currentValue).toInt()
-                            )
+                            Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, round(currentValue).toInt())
                         } else {
                             audioManager.setStreamVolume(
                                 AudioManager.STREAM_MUSIC,
@@ -342,15 +367,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                     if (abs(event.x - startX) > 10 || abs(event.y - startY) > 10) {
                         currentValue = -1f
 
-                        Settings.System.putInt(
-                            contentResolver,
-                            Settings.System.SCREEN_BRIGHTNESS_MODE, originalMode
-                        )
+                        Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE, originalMode)
 
-                        handler.sendEmptyMessageDelayed(
-                            HANDLER_AUTO_CLOSE_SETTINGS,
-                            FINISH_DELAY.toLong()
-                        )
+                        handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_SETTINGS, FINISH_DELAY.toLong())
                     } else {
                         if (nameRl.visibility == View.GONE) {
                             openMenu()
@@ -477,17 +496,29 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     // 创建一个新的player
     private fun createPlayer(): IMediaPlayer? {
+        // init player
+        IjkMediaPlayer.loadLibrariesOnce(null)
+        IjkMediaPlayer.native_profileBegin("libijkplayer.so")
+
         val ijkMediaPlayer = IjkMediaPlayer()
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32.toLong())
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 3)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 5)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 1)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 100)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp");
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 30)   // 最大FPS
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp")
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 5)       // 重连
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L) // 30分钟超时
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 10240L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
         ijkMediaPlayer.setVolume(1.0f, 1.0f)
         setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
         return ijkMediaPlayer
@@ -496,7 +527,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     //设置是否开启硬解码
     private fun setEnableMediaCodec(ijkMediaPlayer: IjkMediaPlayer, isEnable: Boolean) {
         val value = if (isEnable) 1 else 0
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value.toLong()) //开启硬解码
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value.toLong()) // 开启硬解码
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", value.toLong())
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", value.toLong())
     }
@@ -524,16 +555,21 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     }
 
     override fun onPrepared(mediaPlayer: IMediaPlayer) {
-        Log.i(TAG, "onPrepared: ")
+        Log.i(TAG, "onPrepared: ----->")
         if (progressBar.visibility == View.VISIBLE) {
             progressBar.visibility = View.GONE
         }
 
-        Log.e(TAG, "onPrepared: " + mediaPlayer.videoWidth)
-        Log.e(TAG, "onPrepared: " + mediaPlayer.videoHeight)
+        Log.e(TAG, "onPrepared VideoWidth: " + mediaPlayer.videoWidth)
+        Log.e(TAG, "onPrepared VideoHeight: " + mediaPlayer.videoHeight)
 
         mediaPlayer.start()
         showInfo()
+
+        // 如果是custom，自定义的播放源，则将其保存到本地足迹中
+        if (currId == CUSTOM_SOURCE_ID) {
+            MySharePreferences.getInstance(this).putHistoryItem(currUrl)
+        }
     }
 
     override fun onError(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
@@ -557,6 +593,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         toast.show()
     }
 
+    // 播放服务器中设置的播放源
     private fun play() {
         if (mediaPlayer != null) {
             if (progressBar.visibility == View.GONE) {
@@ -586,6 +623,31 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 showCantPlayTip()
             }
 
+            mediaPlayer?.prepareAsync()
+        }
+    }
+
+    // 播放用户自定义的播放源
+    private fun play(link: String) {
+        if (mediaPlayer != null) {
+            if (progressBar.visibility == View.GONE) {
+                progressBar.visibility = View.VISIBLE
+            }
+            mediaPlayer?.reset()
+            // 切换直播源需在重新设置一下SurfaceView
+            val videoSv = findViewById<SurfaceView>(R.id.video_sv)
+            mediaPlayer?.setDisplay(videoSv.holder)
+            try {
+                currId = CUSTOM_SOURCE_ID
+                currUrl = link
+                saveLastData()
+                mediaPlayer?.dataSource = currUrl
+                nameAdapter.setCurrId(currId)
+                nameAdapter.notifyDataSetChanged()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                showCantPlayTip()
+            }
             mediaPlayer?.prepareAsync()
         }
     }

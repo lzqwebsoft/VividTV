@@ -3,6 +3,7 @@ package com.lvvi.vividtv.utils
 object Constant {
 
     const val SHARE_PREFERENCES_NAME = "share_preferences_data"
+    const val CUSTOM_HISTORY_KEY = "custom_histories"
 
     const val MEDIA_DATA = "media_data"
     const val LAST_MEDIA_ID = "last_media_id"
