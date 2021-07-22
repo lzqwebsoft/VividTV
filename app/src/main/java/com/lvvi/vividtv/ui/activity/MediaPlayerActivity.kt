@@ -17,6 +17,7 @@ import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
 import cn.leancloud.AVObject
+import cn.leancloud.AVQuery
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -29,6 +30,7 @@ import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
+import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
@@ -36,6 +38,7 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -580,12 +583,19 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         if (currId == CUSTOM_SOURCE_ID) {
             MySharePreferences.getInstance(this).putHistoryItem(currUrl)
 
-            // 将有效的对象保存到云端
-            val todo = AVObject(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
-            todo.put("url", currUrl)
-            todo.put("time", Date().time / 1000)
-            todo.saveInBackground().subscribe {
-                Log.i(TAG, "保存成功。objectId：${it.objectId}")
+            // 将有效的对象保存到云端(首先要去重)
+            val query: AVQuery<AVObject> = AVQuery(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
+            query.whereEqualTo("url", currUrl)
+            query.findInBackground().subscribe { list ->
+                if (list.isEmpty()) {
+                    // 找不到则将其保存在服务端
+                    val todo = AVObject(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
+                    todo.put("url", currUrl)
+                    todo.put("time", Date().time / 1000)
+                    todo.saveInBackground().subscribe {
+                        Log.i(TAG, "保存成功。objectId：${it.objectId}")
+                    }
+                }
             }
         }
     }
