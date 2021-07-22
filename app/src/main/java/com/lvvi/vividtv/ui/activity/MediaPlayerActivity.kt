@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
+import cn.leancloud.AVObject
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -23,10 +24,12 @@ import com.lvvi.vividtv.R
 import com.lvvi.vividtv.model.VideoDataModelNew
 import com.lvvi.vividtv.service.UpdateChannelInfoService
 import com.lvvi.vividtv.ui.adapter.ChannelNameAdapter
+import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
+import io.reactivex.disposables.Disposable
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
@@ -35,6 +38,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.round
+
 
 /**
  * 直播视频播放页面
@@ -66,6 +70,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     private var mediaPlayer: IMediaPlayer? = null
     private var mEnableMediaCodec: Boolean = false    // 是否开启硬解码
+
+    private var currentPosition: Long = 0
 
     private lateinit var mainRl: RelativeLayout
     private lateinit var progressBar: ProgressBar
@@ -484,6 +490,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         mediaPlayer?.setOnErrorListener(this)
         mediaPlayer?.setOnInfoListener(this)
         mediaPlayer?.setOnBufferingUpdateListener(this)
+        mediaPlayer?.setOnCompletionListener(this)
 
         try {
             mediaPlayer?.dataSource = currUrl
@@ -504,21 +511,21 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32.toLong())
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 5)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 12)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 0)  // （去块效应）滤波 ，默认为48，设置0后比较清晰
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 100)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 30)   // 最大FPS
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp")
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 5)       // 重连
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L) // 30分钟超时
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L)
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp")
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1)       // 重连打开
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L) // 30秒超时
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 10240L)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 102400L)
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
         ijkMediaPlayer.setVolume(1.0f, 1.0f)
         setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
         return ijkMediaPlayer
@@ -552,6 +559,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     override fun onCompletion(mediaPlayer: IMediaPlayer) {
         Log.i(TAG, "onCompletion: ")
+        // 播放结束时回调重播
+        initPlayer()
+//        play(currUrl)
     }
 
     override fun onPrepared(mediaPlayer: IMediaPlayer) {
@@ -569,20 +579,29 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         // 如果是custom，自定义的播放源，则将其保存到本地足迹中
         if (currId == CUSTOM_SOURCE_ID) {
             MySharePreferences.getInstance(this).putHistoryItem(currUrl)
+
+            // 将有效的对象保存到云端
+            val todo = AVObject(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
+            todo.put("url", currUrl)
+            todo.put("time", Date().time / 1000)
+            todo.saveInBackground().subscribe {
+                Log.i(TAG, "保存成功。objectId：${it.objectId}")
+            }
         }
     }
 
-    override fun onError(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
-        Log.e(TAG, "onError: i: $i i1: $i1")
-//        if (i == -10000) {
-//            mediaPlayer.reset()
-//        }
+    override fun onError(mediaPlayer: IMediaPlayer, framework_err: Int, impl_err: Int): Boolean {
+        Log.e(TAG, "onError: i: $framework_err i1: $impl_err")
         if (currUrl == channelsBeans[currNamePosition].url1) {
             tryOtherLine()
         } else {
             showCantPlayTip()
+            if (framework_err == -10000) {
+                currUrl = channelsBeans[currNamePosition].url1.toString()
+                initPlayer()
+            }
         }
-        return false
+        return true
     }
 
     private fun showCantPlayTip() {
@@ -617,13 +636,16 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
                     nameAdapter.setCurrId(currId)
                     nameAdapter.notifyDataSetChanged()
+
+                    mediaPlayer?.prepareAsync()
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
                 showCantPlayTip()
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                showCantPlayTip()
             }
-
-            mediaPlayer?.prepareAsync()
         }
     }
 
@@ -644,11 +666,15 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 mediaPlayer?.dataSource = currUrl
                 nameAdapter.setCurrId(currId)
                 nameAdapter.notifyDataSetChanged()
+
+                mediaPlayer?.prepareAsync()
             } catch (e: IOException) {
                 e.printStackTrace()
                 showCantPlayTip()
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                showCantPlayTip()
             }
-            mediaPlayer?.prepareAsync()
         }
     }
 
@@ -678,7 +704,42 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     override fun onInfo(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
         Log.e(TAG, "onInfo: i: $i i1: $i1")
-        return false
+        when (i) {
+            IMediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING -> Log.e(TAG, "MEDIA_INFO_VIDEO_TRACK_LAGGING:")
+            IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> Log.e(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:")
+            IMediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                // 开始缓冲，暂停
+                Log.e(TAG, "MEDIA_INFO_BUFFERING_START:")
+                if (progressBar.visibility == View.GONE) {
+                    progressBar.visibility = View.VISIBLE
+                }
+                if (mediaPlayer.isPlaying) {
+                    mediaPlayer.pause()
+                    currentPosition = mediaPlayer.currentPosition
+                }
+
+            }
+            IMediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                Log.e(TAG, "MEDIA_INFO_BUFFERING_END:")
+                // 缓冲结束，重新播放
+                if (progressBar.visibility == View.VISIBLE) {
+                    progressBar.visibility = View.GONE
+                }
+                mediaPlayer.start()
+            }
+            IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH -> Log.e(TAG, "MEDIA_INFO_NETWORK_BANDWIDTH: $i")
+            IMediaPlayer.MEDIA_INFO_BAD_INTERLEAVING -> Log.e(TAG, "MEDIA_INFO_BAD_INTERLEAVING:")
+            IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE -> Log.e(TAG, "MEDIA_INFO_NOT_SEEKABLE:")
+            IMediaPlayer.MEDIA_INFO_METADATA_UPDATE -> Log.e(TAG, "MEDIA_INFO_METADATA_UPDATE:")
+            IMediaPlayer.MEDIA_INFO_UNSUPPORTED_SUBTITLE -> Log.e(TAG, "MEDIA_INFO_UNSUPPORTED_SUBTITLE:")
+            IMediaPlayer.MEDIA_INFO_SUBTITLE_TIMED_OUT -> Log.e(TAG, "MEDIA_INFO_SUBTITLE_TIMED_OUT:")
+            IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> {
+                Log.e(TAG, "MEDIA_INFO_VIDEO_ROTATION_CHANGED: $i1")
+//                findViewById<SurfaceView>(R.id.video_sv)?.setVideoRotation(i1)
+            }
+            IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START -> Log.d(TAG, "MEDIA_INFO_AUDIO_RENDERING_START:")
+        }
+        return true
     }
 
     override fun onBufferingUpdate(mediaPlayer: IMediaPlayer, i: Int) {

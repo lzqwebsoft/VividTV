@@ -53,4 +53,6 @@ object Constant {
     const val AVOBJECT_URL1 = "url1"
     const val AVOBJECT_URL2 = "url2"
     const val IS_SHOW = "is_show"
+
+    const val AVOBJECT_CLASS_CUSTOM_VIDEO = "custom_video"
 }

@@ -50,7 +50,9 @@ class MySharePreferences private constructor() {
     // 获取自定义的直播源地址足迹列表
     fun getHistoryItems(): Array<CustomSourceHistory> {
         val arrayValue = sharedPreferences!!.getString(Constant.CUSTOM_HISTORY_KEY, "[]")
-        return gson.fromJson(arrayValue, Array<CustomSourceHistory>::class.java)
+        val list = gson.fromJson(arrayValue, Array<CustomSourceHistory>::class.java)
+        list.sortByDescending { it.time }  // 按时间降序
+        return list
     }
 
     // 删除指定索引的自定义的直播源地址

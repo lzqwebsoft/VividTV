@@ -76,6 +76,7 @@ class SourceHistoryDialog(private val context: Context) {
         val lp = dialogWindow!!.attributes
         val d = context.resources.displayMetrics // 获取屏幕宽、高用
         lp.width = (d.widthPixels * 0.5).toInt() // 宽度设置为屏幕的0.8
+        lp.height = (d.heightPixels * 0.8).toInt() // 宽度设置为屏幕的0.8
         dialogWindow.attributes = lp
         dialog.show()
     }

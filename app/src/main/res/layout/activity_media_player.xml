@@ -3,7 +3,7 @@
     android:id="@+id/main_rl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lb_default_brand_color_dark">
+    android:background="@color/media_player_background">
 
     <!-- 播放层 -->
     <RelativeLayout

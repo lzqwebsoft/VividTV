@@ -19,4 +19,6 @@
 
     <color name="text_hint_color">#C4C5CE</color>
     <color name="text_info_color">#A6A8B6</color>
+
+    <color name="media_player_background">#000000</color>
 </resources>

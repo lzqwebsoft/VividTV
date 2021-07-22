@@ -6,13 +6,30 @@
     android:paddingEnd="10dp">
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/delete"
-        android:singleLine="true" />
+        android:layout_marginEnd="5dp"
+        android:singleLine="true"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/delete"
+        android:layout_toEndOf="@+id/time"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:singleLine="true"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/delete"
