@@ -577,7 +577,6 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         Log.e(TAG, "onPrepared VideoHeight: " + mediaPlayer.videoHeight)
 
         mediaPlayer.start()
-        showInfo()
 
         // 如果是custom，自定义的播放源，则将其保存到本地足迹中
         if (currId == CUSTOM_SOURCE_ID) {
@@ -597,6 +596,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                     }
                 }
             }
+        } else {
+            showInfo()
         }
     }
 
