@@ -55,4 +55,8 @@ object Constant {
     const val IS_SHOW = "is_show"
 
     const val AVOBJECT_CLASS_CUSTOM_VIDEO = "custom_video"
+    const val AVOBJECT_CLASS_CURRENT_VERIOSN = "current_version"
+    const val AVOBJECT_LAST_VERSION = "last"
+    const val AVOBJECT_LAST_VERSION_URL = "url"
+    const val AVOBJECT_VERSION_ID = "id"
 }

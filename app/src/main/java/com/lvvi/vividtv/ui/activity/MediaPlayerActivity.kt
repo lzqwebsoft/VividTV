@@ -3,6 +3,7 @@ package com.lvvi.vividtv.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -15,14 +16,17 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import cn.leancloud.AVObject
 import cn.leancloud.AVQuery
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.lvvi.vividtv.BuildConfig
 import com.lvvi.vividtv.R
 import com.lvvi.vividtv.model.VideoDataModelNew
+import com.lvvi.vividtv.service.DownloadService
 import com.lvvi.vividtv.service.UpdateChannelInfoService
 import com.lvvi.vividtv.ui.adapter.ChannelNameAdapter
 import com.lvvi.vividtv.utils.Constant
@@ -30,15 +34,12 @@ import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
-import io.reactivex.Observer
-import io.reactivex.disposables.Disposable
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -69,12 +70,13 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         const val DEFAULT_VIDEO_URL =
             "https://www.apple.com/105/media/cn/mac/family/2018/46c4b917_abfd_45a3_9b51_" +
                     "4e3054191797/films/bruce/mac-bruce-tpl-cn-2018_1280x720h.mp4"
+        const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
     }
 
     private var mediaPlayer: IMediaPlayer? = null
-    private var mEnableMediaCodec: Boolean = false    // 是否开启硬解码
+    private var mEnableMediaCodec: Boolean = true    // 是否开启硬解码
 
-    private var currentPosition: Long = 0
+    private var lastCacheTime: Long = 0               // 上次缓存停顿的时间点
 
     private lateinit var mainRl: RelativeLayout
     private lateinit var progressBar: ProgressBar
@@ -111,6 +113,14 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     private lateinit var connection: ServiceConnection
 
+    private var downloadBinder: DownloadService.DownloadBinder? = null
+    private val connection2: ServiceConnection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName) {}
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            downloadBinder = service as DownloadService.DownloadBinder
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 设置手机屏幕长亮
@@ -119,6 +129,78 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
         initView()
         initData()
+
+        bindDownloadService()
+    }
+
+    private fun bindDownloadService() {
+        val intent = Intent(this@MediaPlayerActivity, DownloadService::class.java)
+        startService(intent) // 启动服务
+        bindService(intent, connection2, BIND_AUTO_CREATE) // 绑定服务
+        if (ContextCompat.checkSelfPermission(
+                this@MediaPlayerActivity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this@MediaPlayerActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.FOREGROUND_SERVICE),
+                1
+            )
+        }
+        checkVersion()
+    }
+
+    // 检查软件版本
+    private fun checkVersion() {
+        val query: AVQuery<AVObject> = AVQuery(Constant.AVOBJECT_CLASS_CURRENT_VERIOSN)
+        query.addDescendingOrder(Constant.AVOBJECT_VERSION_ID) // 降序
+        val subscribe = query.findInBackground().subscribe { list ->
+            if (list.isNotEmpty() && list.first() !== null) {
+                var needUpdate = false
+                val data = list.first()
+                val last = data.getString(Constant.AVOBJECT_LAST_VERSION)
+                val url = data.getString(Constant.AVOBJECT_LAST_VERSION_URL)
+                val currentVersion = BuildConfig.VERSION_NAME
+                try {
+                    val versions = currentVersion.split(".")
+                    val lastVersions = last.split(".")
+                    lastVersions.forEachIndexed { i, s ->
+                        val subVersion = s.toUInt()
+                        val cSubVersion = versions[i].toUInt()
+                        if (cSubVersion < subVersion) {
+                            needUpdate = true
+                            return@forEachIndexed
+                        }
+                    }
+                } catch (e: java.lang.Exception) {
+                    needUpdate = false
+                }
+                // 查询服务器检查需要更新软件版本
+                if (needUpdate) {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle(getString(R.string.find_new_version))
+                    builder.setMessage(getString(R.string.confirm_upgrade_apk, currentVersion, last))
+
+                    builder.setNegativeButton(getString(R.string.dialog_cancel_button)) { p0, _ ->
+                        p0?.dismiss()
+                    }
+
+                    builder.setPositiveButton(getString(R.string.dialog_ok_button)) { p0, _ ->
+                        p0?.dismiss()
+
+                        // 开始下载APK
+                        val fileName = "VividTV_v${last}_release.apk"
+                        downloadBinder?.startDownload(url, fileName)
+                    }
+
+                    builder.setCancelable(true)
+
+                    val dialog = builder.create()
+                    dialog.show()
+                }
+            }
+        }
     }
 
     override fun onStart() {
@@ -137,8 +219,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             override fun onServiceDisconnected(p0: ComponentName?) {
             }
 
-            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
             }
         }
         Intent(this, UpdateChannelInfoService::class.java).also { intent ->
@@ -512,19 +593,22 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
         val ijkMediaPlayer = IjkMediaPlayer()
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "fast", 1)    // 不符合规范的优化，默认是关闭
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "loop", -1)   // 设置循环播放次数，默认是1
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", 1)  // 不要限制输入缓冲区大小（对实时流很有用）”,默认是0关闭
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32.toLong())
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 12)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 120) // 当CPU过慢时，丢掉的帧数，默认是0，最大是120
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 1)  // 准备好后，自动播放
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 0)  // （去块效应）滤波 ，默认为48，设置0后比较清晰
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 100)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 30)   // 最大FPS
-//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 50000)      // 停止预读的最小帧数，默认是50000
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 0)  // 启动精确的跳播
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 30)          // 最大FPS
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 1L) // 关闭暂停输出，直到packet包缓存完毕
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp")
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1)       // 重连打开
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L) // 30秒超时
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1)         // 重连打开
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L)   // 30s超时,默认30s
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "user-agent", USER_AGENT)      // HTTP请求代理
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1)
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 102400L)
@@ -537,9 +621,11 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     //设置是否开启硬解码
     private fun setEnableMediaCodec(ijkMediaPlayer: IjkMediaPlayer, isEnable: Boolean) {
         val value = if (isEnable) 1 else 0
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value.toLong()) // 开启硬解码
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", value.toLong()) // 开启硬解码
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", value.toLong())
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", value.toLong())
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-sync", value.toLong())
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", value.toLong())   // OpenSL ES 开关
     }
 
     fun setEnableMediaCodec(isEnable: Boolean) {
@@ -721,14 +807,17 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             IMediaPlayer.MEDIA_INFO_BUFFERING_START -> {
                 // 开始缓冲，暂停
                 Log.e(TAG, "MEDIA_INFO_BUFFERING_START:")
-                if (progressBar.visibility == View.GONE) {
-                    progressBar.visibility = View.VISIBLE
+                // 延时3秒显示加载进度条
+                val current = Date().time
+                if (lastCacheTime == 0L || current - lastCacheTime > 3000) {
+                    if (progressBar.visibility == View.GONE) {
+                        progressBar.visibility = View.VISIBLE
+                    }
                 }
+                lastCacheTime = current
                 if (mediaPlayer.isPlaying) {
                     mediaPlayer.pause()
-                    currentPosition = mediaPlayer.currentPosition
                 }
-
             }
             IMediaPlayer.MEDIA_INFO_BUFFERING_END -> {
                 Log.e(TAG, "MEDIA_INFO_BUFFERING_END:")
@@ -873,5 +962,18 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             mediaPlayer = null
         }
         unbindService(connection)
+    }
+
+    // 权限检查结果
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        when (requestCode) {
+            1 -> if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "拒绝权限将无法使用程序", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            else -> {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            }
+        }
     }
 }

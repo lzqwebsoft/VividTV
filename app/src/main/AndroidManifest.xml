@@ -4,19 +4,22 @@
     package="com.lvvi.vividtv">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
     <!-- 基本模块（必须）START -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- 基本模块 END -->
 
-<!--    <uses-feature-->
-<!--        android:name="android.hardware.touchscreen"-->
-<!--        android:required="false" />-->
+    <!--    <uses-feature-->
+    <!--        android:name="android.hardware.touchscreen"-->
+    <!--        android:required="false" />-->
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
@@ -41,11 +44,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.MediaPlayerActivity"
-                  android:launchMode="singleTop"
-                  android:screenOrientation="landscape"/>
+        <activity
+            android:name=".ui.activity.MediaPlayerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" />
 
-        <service android:name=".service.UpdateChannelInfoService"/>
+        <service android:name=".service.UpdateChannelInfoService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
