@@ -16,7 +16,6 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import cn.leancloud.AVObject
 import cn.leancloud.AVQuery
@@ -42,7 +41,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.round
-
 
 /**
  * 直播视频播放页面
@@ -120,6 +118,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             downloadBinder = service as DownloadService.DownloadBinder
         }
     }
+    private var isBinderDownloadUpdateService = false
+    private var isBinderCancelInfoService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,20 +134,10 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     }
 
     private fun bindDownloadService() {
-        val intent = Intent(this@MediaPlayerActivity, DownloadService::class.java)
+        val intent = Intent(this, DownloadService::class.java)
         startService(intent) // 启动服务
-        bindService(intent, connection2, BIND_AUTO_CREATE) // 绑定服务
-        if (ContextCompat.checkSelfPermission(
-                this@MediaPlayerActivity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this@MediaPlayerActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.FOREGROUND_SERVICE),
-                1
-            )
-        }
+        isBinderDownloadUpdateService = bindService(intent, connection2, BIND_AUTO_CREATE) // 绑定服务
+
         checkVersion()
     }
 
@@ -213,6 +203,15 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         initPlayer()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // 解绑服务
+        if (isBinderDownloadUpdateService)
+            unbindService(connection2)
+        if (isBinderCancelInfoService)
+            unbindService(connection)
+    }
+
     // 绑定并启动节目更新服务
     private fun bindService() {
         connection = object : ServiceConnection {
@@ -223,7 +222,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             }
         }
         Intent(this, UpdateChannelInfoService::class.java).also { intent ->
-            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            isBinderCancelInfoService = bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
 
@@ -265,7 +264,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         previewIv.layoutParams.height = screenWidth / 3 * 9 / 16
 
         nameLv = findViewById(R.id.name_lv)
-        nameAdapter = ChannelNameAdapter(this@MediaPlayerActivity)
+        nameAdapter = ChannelNameAdapter(this)
         nameLv.adapter = nameAdapter
         nameLv.layoutParams.width = screenWidth / 3
 
@@ -284,7 +283,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
         // 点击播放源按钮，弹出播放源对话框
         sourceLinkBtn.setOnClickListener {
-            val dialog = SourceLinkDialog(this@MediaPlayerActivity)
+            val dialog = SourceLinkDialog(this)
             dialog.confirmListener = {
                 // 收起节目面板列表
                 if (nameRl.visibility == View.VISIBLE) {
@@ -502,7 +501,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     private fun initData() {
         simpleDateFormat = SimpleDateFormat("HH:mm", Locale.CHINA)
 
-        toast = Toast.makeText(this@MediaPlayerActivity, R.string.app_name, Toast.LENGTH_LONG)
+        toast = Toast.makeText(this, R.string.app_name, Toast.LENGTH_LONG)
 
         currUrl = DEFAULT_VIDEO_URL
         val bundle = intent.extras
@@ -511,7 +510,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             currUrl = bundle.getString(EXTRA_URL, DEFAULT_VIDEO_URL)
         }
 
-        channelsBeans = MyApplication.get().getVideoData(this@MediaPlayerActivity)
+        channelsBeans = MyApplication.get().getVideoData(this)
 
         nameAdapter.setCurrId(currId)
         nameAdapter.setData(channelsBeans)
@@ -962,18 +961,5 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             mediaPlayer = null
         }
         unbindService(connection)
-    }
-
-    // 权限检查结果
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        when (requestCode) {
-            1 -> if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "拒绝权限将无法使用程序", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            else -> {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }
-        }
     }
 }

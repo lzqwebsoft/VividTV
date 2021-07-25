@@ -49,6 +49,7 @@ class SplashActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_view)
         initView()
+        checkPermission2()
         startAnimation()
     }
 
@@ -108,6 +109,14 @@ class SplashActivity : Activity() {
             checkPermission()
         } else {
             intentToMainActivity()
+        }
+    }
+
+    private fun checkPermission2() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.FOREGROUND_SERVICE),1)
         }
     }
 
@@ -191,6 +200,19 @@ class SplashActivity : Activity() {
         when (requestCode) {
             PERMISSION_REQUEST_WRITE_SETTINGS -> {
                 intentToMainActivity()
+            }
+        }
+    }
+
+    // 权限检查结果
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        when (requestCode) {
+            1 -> if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "拒绝权限将无法使用程序", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            else -> {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             }
         }
     }

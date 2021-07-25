@@ -50,6 +50,7 @@
             android:screenOrientation="landscape" />
 
         <service android:name=".service.UpdateChannelInfoService" />
+        <service android:name=".service.DownloadService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

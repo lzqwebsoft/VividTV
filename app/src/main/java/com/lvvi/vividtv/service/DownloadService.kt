@@ -18,7 +18,7 @@ import com.lvvi.vividtv.task.DownloadTask
 import kotlinx.coroutines.*
 import java.io.File
 
-private const val NOTIFICATION_CHANNEL_ID = "com.joymed.tech.pca"
+private const val NOTIFICATION_CHANNEL_ID = "com.lvvi.vividtv"
 
 class DownloadService : Service() {
     private var apkUpgradeDirectionPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
@@ -27,6 +27,8 @@ class DownloadService : Service() {
     private var downloadTask: DownloadTask? = null
     private val mBinder = DownloadBinder()
     private val downloadJob: Job = Job()
+    private val notificationManager: NotificationManager? = null
+    private var notificationBuilder: NotificationCompat.Builder? = null
 
     private val listener: DownloadListener = object : DownloadListener {
         override fun onProgress(progress: Int) {
@@ -38,7 +40,7 @@ class DownloadService : Service() {
             // 下载成功时将前台服务通知关闭，并创建一个下载成功的通知
             showNotification(1, "下载成功", -2)
             stopForeground(true)
-            Toast.makeText(this@DownloadService, "下载成功", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this@DownloadService, "下载成功", Toast.LENGTH_SHORT).show()
             // 下载完成自动跳转至更新画面
             if (saveFilePath != null)
                 startActivity(getInstallAppIntent(saveFilePath!!))
@@ -48,7 +50,7 @@ class DownloadService : Service() {
             // 下载失败时将前台服务通知关闭，并创建一个下载失败的通知
             showNotification(1, "下载失败", -1)
             stopForeground(true)
-            Toast.makeText(this@DownloadService, "下载失败 ${msg ?: ""}" + Thread.currentThread().name, Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this@DownloadService, "下载失败 ${msg ?: ""}" + Thread.currentThread().name, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -123,13 +125,14 @@ class DownloadService : Service() {
             val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, IMPORTANCE_HIGH)
             chan.lightColor = Color.BLUE
             chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            chan.setSound(null, null)
             notificationManager.createNotificationChannel(chan)
         }
         return notificationManager
     }
 
     private fun getNotification(title: String, progress: Int): Notification {
-        val builder: NotificationCompat.Builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        val builder: NotificationCompat.Builder = notificationBuilder ?: NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
         builder.setSmallIcon(R.mipmap.ic_launcher)
 //        builder.setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_avatar))
         if (progress == -2 && saveFilePath != null) {
@@ -137,7 +140,8 @@ class DownloadService : Service() {
             val contentIntent = PendingIntent.getActivity(this, 0, installAppIntent, 0)
             builder.setContentIntent(contentIntent)  // 点击安装
         }
-        builder.priority = NotificationCompat.PRIORITY_MAX
+        builder.priority = NotificationCompat.PRIORITY_LOW
+        builder.setSound(null)
         builder.setContentTitle(title)
         if (progress >= 0) {
             // 当progress大于或等于0时才需显示下载进度
@@ -154,7 +158,7 @@ class DownloadService : Service() {
 
     private fun showNotification(notificationId: Int, title: String, progress: Int) {
         // 判断应用通知是否打开
-        val manager = getNotificationManager()
+        val manager = notificationManager ?: getNotificationManager()
         if (manager != null && openNotificationChannel(manager, NOTIFICATION_CHANNEL_ID) != true) {
             return
         }
@@ -171,8 +175,9 @@ class DownloadService : Service() {
         // 判断渠道通知是否打开
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel: NotificationChannel? = manager.getNotificationChannel(channelId)
+            channel?.setSound(null, null)
             if (channel?.importance == IMPORTANCE_NONE) {
-                //没打开调往设置界面
+                // 没打开调往设置界面
                 toNotifySetting(channel.id)
                 return false
             }

@@ -3,7 +3,6 @@ package com.lvvi.vividtv.task
 import android.util.Log
 import cn.leancloud.AVFile
 import com.lvvi.vividtv.service.DownloadListener
-import kotlinx.coroutines.*
 import java.io.*
 
 private const val TAG = "DownloadTask"
@@ -53,7 +52,8 @@ class DownloadTask(downloadListener: DownloadListener, saveFilePath: String) {
         try {
             val file = AVFile("app.apk", url)
             val data = file.data
-            writeResponseBodyToDisk(data)
+            val result = writeResponseBodyToDisk(data)
+            onPostExecute(result)
         } catch (e: Exception) {
             Log.e(TAG, e.stackTraceToString())
             onError(e.message)
@@ -61,26 +61,21 @@ class DownloadTask(downloadListener: DownloadListener, saveFilePath: String) {
     }
 
     private fun onProgressUpdate(progress: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
-            downloadListener.onProgress(progress)
-        }
+        downloadListener.onProgress(progress)
     }
 
     private fun onError(message: String?) {
-        CoroutineScope(Dispatchers.Main).launch {
-            downloadListener.onFailed(message)
-            isStart = false
-        }
+        downloadListener.onFailed(message)
+        isStart = false
     }
 
     private fun onPostExecute(result: Boolean) {
-        CoroutineScope(Dispatchers.Main).launch {
-            if (result)
-                downloadListener.onSuccess()
-            else
-                downloadListener.onFailed()
-            isStart = false
-        }
+        if (result)
+            downloadListener.onSuccess()
+        else
+            downloadListener.onFailed()
+        isStart = false
     }
+
 }
 
