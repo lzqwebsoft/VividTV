@@ -1,230 +1,236 @@
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86/src/main/obj/local/x86/objs/ijkplayer/ijkavformat/ijkmediadatasource.o: \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkmediadatasource.c \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/assert.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_cprolog.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/features.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_stlport_version.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/user_config.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/compat.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/host.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_system.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_android.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_gcc.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/stl_confix.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_native_headers.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_epilog.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_config_compat_post.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/avformat.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/time.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdio.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavcodec/avcodec.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/errno.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/limits.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/math.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdlib.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/macros.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avconfig.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/mem.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/error.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/mathematics.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/intfloat.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/cpu.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/channel_layout.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavcodec/version.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/avio.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/version.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/url.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avstring.h \
- /home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/opt.h \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkavformat.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkplayer/ijkavutil/opt.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IMediaDataSource.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_base.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijksdl/android/ijksdl_android_jni.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_allclasses.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_base.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_allclasses.include.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/nio/Buffer.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/nio/ByteBuffer.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/util/ArrayList.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/AudioTrack.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/MediaCodec.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/MediaFormat.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/PlaybackParams.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/os/Build.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/os/Bundle.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IAndroidIO.h \
- /home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/IjkMediaPlayer.h
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86/src/main/obj/local/x86/objs/ijkplayer/ijkavformat/ijkmediadatasource.o: \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkmediadatasource.c \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/assert.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_cprolog.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/features.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_stlport_version.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/user_config.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/compat.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/host.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_system.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_android.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_gcc.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/stl_confix.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_native_headers.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_epilog.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_config_compat_post.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/avformat.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/time.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdio.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavcodec/avcodec.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/errno.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/limits.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/math.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdlib.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/macros.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avconfig.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/mem.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/error.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/mathematics.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/intfloat.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/cpu.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/channel_layout.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/hwcontext.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavcodec/version.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/avio.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/version.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/url.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avstring.h \
+ /home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/opt.h \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkavformat.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkplayer/ijkavutil/opt.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IMediaDataSource.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_base.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijksdl/android/ijksdl_android_jni.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_allclasses.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_base.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_allclasses.include.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/nio/Buffer.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/nio/ByteBuffer.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/util/ArrayList.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/AudioTrack.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/MediaCodec.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/MediaFormat.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/PlaybackParams.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/os/Build.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/os/Bundle.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IAndroidIO.h \
+ /home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/IjkMediaPlayer.h
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/assert.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/assert.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_cprolog.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_cprolog.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/features.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/features.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_stlport_version.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_stlport_version.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/user_config.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/user_config.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/compat.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/compat.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/host.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/host.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_system.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_system.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_android.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_android.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_gcc.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_gcc.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/stl_confix.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/stl_confix.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/config/_native_headers.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/config/_native_headers.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_epilog.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_epilog.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_config_compat_post.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_config_compat_post.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/avformat.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/avformat.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/time.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/time.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdio.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdio.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavcodec/avcodec.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavcodec/avcodec.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/errno.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/errno.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/limits.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/limits.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/math.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/math.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdlib.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdlib.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/macros.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/macros.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avconfig.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avconfig.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/mem.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/mem.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/error.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/error.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/mathematics.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/mathematics.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/intfloat.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/intfloat.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/attributes.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avutil.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/cpu.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/cpu.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/channel_layout.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/channel_layout.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/buffer.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/dict.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/samplefmt.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/hwcontext.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/frame.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/log.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavcodec/version.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/pixfmt.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/rational.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/avio.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavcodec/version.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/version.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/version.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/avio.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavformat/url.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/common.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/avstring.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/version.h:
 
-/home/wujf/ijkplayer-android/android/contrib/build/ffmpeg-x86/output/include/libavutil/opt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavformat/url.h:
 
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkavformat.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/avstring.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkplayer/ijkavutil/opt.h:
+/home/zqluo/ijkplayer/android/contrib/build/ffmpeg-x86/output/include/libavutil/opt.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IMediaDataSource.h:
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkplayer/ijkavformat/ijkavformat.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_base.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkplayer/ijkavutil/opt.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijksdl/android/ijksdl_android_jni.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IMediaDataSource.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_allclasses.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_base.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_base.h:
+/home/zqluo/ijkplayer/ijkmedia/ijksdl/android/ijksdl_android_jni.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/j4a_allclasses.include.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_allclasses.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/nio/Buffer.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_base.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/nio/ByteBuffer.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/j4a_allclasses.include.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/java/util/ArrayList.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/nio/Buffer.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/AudioTrack.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/nio/ByteBuffer.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/MediaCodec.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/java/util/ArrayList.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/MediaFormat.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/AudioTrack.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/media/PlaybackParams.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/MediaCodec.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/os/Build.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/MediaFormat.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/android/os/Bundle.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/media/PlaybackParams.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IAndroidIO.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/os/Build.h:
 
-/home/wujf/ijkplayer-android/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/IjkMediaPlayer.h:
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/android/os/Bundle.h:
+
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/misc/IAndroidIO.h:
+
+/home/zqluo/ijkplayer/ijkmedia/ijkj4a/j4a/class/tv/danmaku/ijk/media/player/IjkMediaPlayer.h:

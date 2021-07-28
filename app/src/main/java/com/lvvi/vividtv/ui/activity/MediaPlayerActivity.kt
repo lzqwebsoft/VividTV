@@ -208,8 +208,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         // 解绑服务
         if (isBinderDownloadUpdateService)
             unbindService(connection2)
-        if (isBinderCancelInfoService)
-            unbindService(connection)
+//        if (isBinderCancelInfoService)
+//            unbindService(connection)
     }
 
     // 绑定并启动节目更新服务
@@ -593,25 +593,25 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         val ijkMediaPlayer = IjkMediaPlayer()
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "fast", 1)    // 不符合规范的优化，默认是关闭
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "loop", -1)   // 设置循环播放次数，默认是1
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "loop", Int.MAX_VALUE.toLong())   // 设置循环播放次数，默认是1
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", 1)  // 不要限制输入缓冲区大小（对实时流很有用）”,默认是0关闭
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32.toLong())
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 120) // 当CPU过慢时，丢掉的帧数，默认是0，最大是120
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 15) // 当CPU过慢时，丢掉的帧数，默认是0，最大是120
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 1)  // 准备好后，自动播放
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 0)  // （去块效应）滤波 ，默认为48，设置0后比较清晰
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 50000)      // 停止预读的最小帧数，默认是50000
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)  // （去块效应）滤波 ，默认为48，设置0后比较清晰
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "min-frames", 500)      // 停止预读的最小帧数，默认是50000
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 0)  // 启动精确的跳播
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 30)          // 最大FPS
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L) // 关闭暂停输出，直到packet包缓存完毕,默认是1
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "rtmp,crypto,file,http,https,tcp,tls,udp")
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1)         // 重连打开
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 30000000L)   // 30s超时,默认30s
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "user-agent", USER_AGENT)      // HTTP请求代理
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "user_agent", USER_AGENT)      // HTTP请求代理
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1)
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
-//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 102400L)
-//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 102400L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
         ijkMediaPlayer.setVolume(1.0f, 1.0f)
         setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
         return ijkMediaPlayer
@@ -625,6 +625,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", value.toLong())
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-sync", value.toLong())
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", value.toLong())   // OpenSL ES 开关
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", value.toLong())
     }
 
     fun setEnableMediaCodec(isEnable: Boolean) {
@@ -648,8 +649,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     override fun onCompletion(mediaPlayer: IMediaPlayer) {
         Log.i(TAG, "onCompletion: ")
         // 播放结束时回调重播
+        mediaPlayer.release()
         initPlayer()
-//        play(currUrl)
+        play(currUrl)
     }
 
     override fun onPrepared(mediaPlayer: IMediaPlayer) {
@@ -694,7 +696,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             showCantPlayTip()
             if (framework_err == -10000) {
                 currUrl = channelsBeans[currNamePosition].url1.toString()
+                mediaPlayer.release()
                 initPlayer()
+                play(currUrl)
             }
         }
         return true
@@ -729,6 +733,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                     saveLastData()
 
                     mediaPlayer?.dataSource = currUrl
+                    mediaPlayer?.setScreenOnWhilePlaying(true)
 
                     nameAdapter.setCurrId(currId)
                     nameAdapter.notifyDataSetChanged()
@@ -760,6 +765,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 currUrl = link
                 saveLastData()
                 mediaPlayer?.dataSource = currUrl
+                mediaPlayer?.setScreenOnWhilePlaying(true)
                 nameAdapter.setCurrId(currId)
                 nameAdapter.notifyDataSetChanged()
 
@@ -794,8 +800,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     }
 
     private fun saveLastData() {
-        MyApplication.get().setLastId(this@MediaPlayerActivity, currId)
-        MyApplication.get().setLastUrl(this@MediaPlayerActivity, currUrl)
+        MyApplication.get().setLastId(this, currId)
+        MyApplication.get().setLastUrl(this, currUrl)
     }
 
     override fun onInfo(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {

@@ -1,29 +1,29 @@
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/obj/local/x86_64/objs/ijkplayer/ijkavutil/ijkdict.o: \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.c \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.h \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkutils.h \
- /home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijktree.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/errno.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/string.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdio.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdlib.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/ctype.h \
- /home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_prolog.h
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/obj/local/x86_64/objs/ijkplayer/ijkavutil/ijkdict.o: \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.c \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.h \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkutils.h \
+ /home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijktree.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/errno.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/string.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdio.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdlib.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/ctype.h \
+ /home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_prolog.h
 
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.h:
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkdict.h:
 
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkutils.h:
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijkutils.h:
 
-/home/wujf/ijkplayer-android/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijktree.h:
+/home/zqluo/ijkplayer/android/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkplayer/ijkavutil/ijktree.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/errno.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/errno.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/string.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/string.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdio.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdio.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stdlib.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stdlib.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/ctype.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/ctype.h:
 
-/home/wujf/xxq/android-ndk-r12b/sources/cxx-stl/stlport/stlport/stl/_prolog.h:
+/home/zqluo/android-ndk-r11c/sources/cxx-stl/stlport/stlport/stl/_prolog.h:
