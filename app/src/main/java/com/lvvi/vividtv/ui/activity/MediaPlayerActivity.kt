@@ -52,6 +52,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
         private const val TAG = "MediaPlayerActivity"
         private const val CUSTOM_SOURCE_ID = "custom"
+        const val PERMISSION_REQUEST_MANAGE_UNKNOWN_APP_SOURCES = 101
 
         const val HANDLER_BACK = 0
         const val HANDLER_FINISH = 1
@@ -116,6 +117,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         override fun onServiceDisconnected(name: ComponentName) {}
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             downloadBinder = service as DownloadService.DownloadBinder
+            downloadBinder?.setActivity(this@MediaPlayerActivity)
         }
     }
     private var isBinderDownloadUpdateService = false
@@ -610,7 +612,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "user_agent", USER_AGENT)      // HTTP请求代理
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1)
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L)
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 102400L)
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 1024 * 64L)
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
         ijkMediaPlayer.setVolume(1.0f, 1.0f)
         setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
@@ -913,6 +915,15 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             handler.removeMessages(HANDLER_AUTO_CLOSE_MENU)
         }
         handler.sendEmptyMessageDelayed(HANDLER_AUTO_CLOSE_MENU, AUTO_CLOSE_MENU_DELAY.toLong())
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            PERMISSION_REQUEST_MANAGE_UNKNOWN_APP_SOURCES -> {
+                downloadBinder?.restartDownload()
+            }
+        }
     }
 
     private class MyHandler(activity: MediaPlayerActivity) : Handler() {

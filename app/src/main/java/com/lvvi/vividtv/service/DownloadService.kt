@@ -10,11 +10,13 @@ import android.provider.Settings
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.lvvi.vividtv.R
 import com.lvvi.vividtv.task.DownloadTask
+import com.lvvi.vividtv.ui.activity.MediaPlayerActivity
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -59,7 +61,22 @@ class DownloadService : Service() {
     }
 
     inner class DownloadBinder : Binder() {
+        private var downloadURL: String? = ""
+        private var saveFileName: String? = ""
+
+        private lateinit var activity: Activity
+
+        fun setActivity(activity: Activity) {
+            this.activity = activity
+        }
+
+        fun restartDownload() {
+            startDownload(downloadURL, saveFileName)
+        }
+
         fun startDownload(url: String?, saveFileName: String? = null) {
+            downloadURL = url
+            this.saveFileName = saveFileName
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (packageManager.canRequestPackageInstalls()) {
                     downloadAPK(url, saveFileName)
@@ -80,7 +97,7 @@ class DownloadService : Service() {
             val packageURI = Uri.parse("package:${packageName}")
             val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+            startActivityForResult(activity, intent, MediaPlayerActivity.PERMISSION_REQUEST_MANAGE_UNKNOWN_APP_SOURCES, null)
         }
 
         private fun downloadAPK(url: String?, fileName: String? = null) {
@@ -99,7 +116,6 @@ class DownloadService : Service() {
                 coroutineScope.async {
                     downloadTask?.execute(downloadUrl!!)
                 }
-
             }
         }
 
