@@ -2,15 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-arm64/src/main/jni/ijkmedia/ijksoundtouch" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-arm64/src/main/jni/ijkmedia/ijkyuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-armv5/src/main/jni/ijkmedia/ijksoundtouch" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-armv5/src/main/jni/ijkmedia/ijkyuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-armv7a/src/main/jni/ijkmedia/ijksoundtouch" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-armv7a/src/main/jni/ijkmedia/ijkyuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijksoundtouch" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-x86/src/main/jni/ijkmedia/ijkyuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijksoundtouch" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ijkplayer/ijkplayer-x86_64/src/main/jni/ijkmedia/ijkyuv" vcs="Git" />
   </component>
 </project>

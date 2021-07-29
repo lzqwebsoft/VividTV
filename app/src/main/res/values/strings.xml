@@ -27,4 +27,7 @@
     <string name="dialog_cancel_button">不要</string>
     <string name="dialog_ok_button">好的</string>
     <string name="download_file">下载文件</string>
+
+    <string name="no_network">没有网络，请检查您的网络设置</string>
+    <string name="click_retry">点击重试</string>
 </resources>

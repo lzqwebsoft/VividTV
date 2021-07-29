@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.database.Observable
 import android.media.AudioManager
 import android.os.*
 import android.provider.Settings
@@ -31,8 +32,10 @@ import com.lvvi.vividtv.ui.adapter.ChannelNameAdapter
 import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
+import com.lvvi.vividtv.utils.Utils
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
+import io.reactivex.disposables.Disposable
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
@@ -46,7 +49,7 @@ import kotlin.math.round
  * 直播视频播放页面
  */
 class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnPreparedListener,
-    IMediaPlayer.OnErrorListener, IMediaPlayer.OnInfoListener, IMediaPlayer.OnBufferingUpdateListener {
+    IMediaPlayer.OnErrorListener, IMediaPlayer.OnInfoListener, IMediaPlayer.OnBufferingUpdateListener, IjkMediaPlayer.OnNativeInvokeListener {
 
     companion object {
 
@@ -92,6 +95,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     private lateinit var progressSeekBar: SeekBar    // 节目播放进度
     private lateinit var startTv: TextView           // 节目开始时间
     private lateinit var endTv: TextView             // 节目结束时间
+
+    private lateinit var noNetworkPanel: RelativeLayout   // 无网络面板
+    private lateinit var retryBtn: Button                 // 重试按钮
 
     private lateinit var settingLl: LinearLayout
     private lateinit var settingLottieAnimationView: LottieAnimationView
@@ -145,9 +151,10 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     // 检查软件版本
     private fun checkVersion() {
+        if (!Utils.isNetworkConnected(this)) return
         val query: AVQuery<AVObject> = AVQuery(Constant.AVOBJECT_CLASS_CURRENT_VERIOSN)
         query.addDescendingOrder(Constant.AVOBJECT_VERSION_ID) // 降序
-        val subscribe = query.findInBackground().subscribe { list ->
+        val subscribe = query.findInBackground().subscribe({ list ->
             if (list.isNotEmpty() && list.first() !== null) {
                 var needUpdate = false
                 val data = list.first()
@@ -192,7 +199,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                     dialog.show()
                 }
             }
-        }
+        }, { e ->
+            Log.e(TAG, e.stackTraceToString())
+        })
     }
 
     override fun onStart() {
@@ -254,6 +263,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         progressSeekBar = findViewById(R.id.progress_seek_bar)   // 节目播放进度
         startTv = findViewById(R.id.start_tv)   // 节目开始时间
         endTv = findViewById(R.id.end_tv)       // 节目结束时间
+
+        noNetworkPanel = findViewById(R.id.no_network_panel)
+        retryBtn = findViewById(R.id.btn_retry)
 
         progressSeekBar.setPadding(0, 0, 0, 0)
         progressSeekBar.max = 100
@@ -341,7 +353,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             }
         })
 
-        //phone
+        // 判断是否获取修改系统设置权限
         if (isPermissionEnabled()) {
             setSettingsListener(screenWidth, screenHeight)
         } else {
@@ -351,6 +363,18 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 } else {
                     closeMenu()
                 }
+            }
+        }
+        // 重试检查是否有网络
+        retryBtn.setOnClickListener {
+            if (Utils.isNetworkConnected(this)) {
+                progressBar.visibility = View.GONE
+                noNetworkPanel.visibility = View.GONE
+
+                // 检查获取得到网络则，重新播放
+                initPlayer()
+            } else {
+                Toast.makeText(this, "没有获取到网络，请重试...", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -616,6 +640,9 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L)
         ijkMediaPlayer.setVolume(1.0f, 1.0f)
         setEnableMediaCodec(ijkMediaPlayer, mEnableMediaCodec)
+
+        // 播放器网络回调的监听
+        ijkMediaPlayer.setOnNativeInvokeListener(this)
         return ijkMediaPlayer
     }
 
@@ -672,18 +699,24 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             MySharePreferences.getInstance(this).putHistoryItem(currUrl)
 
             // 将有效的对象保存到云端(首先要去重)
-            val query: AVQuery<AVObject> = AVQuery(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
-            query.whereEqualTo("url", currUrl)
-            query.findInBackground().subscribe { list ->
-                if (list.isEmpty()) {
-                    // 找不到则将其保存在服务端
-                    val todo = AVObject(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
-                    todo.put("url", currUrl)
-                    todo.put("time", Date().time / 1000)
-                    todo.saveInBackground().subscribe {
-                        Log.i(TAG, "保存成功。objectId：${it.objectId}")
+            if (Utils.isNetworkConnected(this)) {
+                val query: AVQuery<AVObject> = AVQuery(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
+                query.whereEqualTo("url", currUrl)
+                query.findInBackground().subscribe({ list ->
+                    if (list.isEmpty()) {
+                        // 找不到则将其保存在服务端
+                        val todo = AVObject(Constant.AVOBJECT_CLASS_CUSTOM_VIDEO)
+                        todo.put("url", currUrl)
+                        todo.put("time", Date().time / 1000)
+                        todo.saveInBackground().subscribe({
+                            Log.i(TAG, "保存成功。objectId：${it.objectId}")
+                        }, { e ->
+                            Log.e(TAG, e.stackTraceToString())
+                        })
                     }
-                }
+                }, { e ->
+                    Log.e(TAG, e.stackTraceToString())
+                })
             }
         } else {
             showInfo()
@@ -692,24 +725,46 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     override fun onError(mediaPlayer: IMediaPlayer, framework_err: Int, impl_err: Int): Boolean {
         Log.e(TAG, "onError: i: $framework_err i1: $impl_err")
-        if (currUrl == channelsBeans[currNamePosition].url1) {
-            tryOtherLine()
+        if (Utils.isNetworkConnected(this)) {
+            if (currUrl == channelsBeans[currNamePosition].url1) {
+                tryOtherLine()
+            } else {
+                showCantPlayTip()
+                if (framework_err == -10000) {
+                    currUrl = channelsBeans[currNamePosition].url1.toString()
+                    currId = channelsBeans[currNamePosition].id!!
+                    mediaPlayer.release()
+                    initPlayer()
+                    play(currUrl)
+                }
+            }
         } else {
-            showCantPlayTip()
-            if (framework_err == -10000) {
-                currUrl = channelsBeans[currNamePosition].url1.toString()
-                mediaPlayer.release()
-                initPlayer()
-                play(currUrl)
+            // 没有网络显示无网络页面
+            progressBar.visibility = View.GONE
+            noNetworkPanel.visibility = View.VISIBLE
+        }
+        return true
+    }
+
+    // 监听播放器网络播放处理
+    override fun onNativeInvoke(what: Int, args: Bundle?): Boolean {
+        Log.i(TAG, "what: $what, $args")
+        if (what == IjkMediaPlayer.OnNativeInvokeListener.EVENT_DID_HTTP_OPEN && args != null) {
+            val fileSize = args.getLong(IjkMediaPlayer.OnNativeInvokeListener.ARG_FILE_SIZE)
+            val error = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_ERROR)
+            val httpCode = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_HTTP_CODE)
+            if (fileSize == -1L && httpCode == 0 && error == -1001) {
+                // 连接直播源服务器失败
+                progressBar.visibility = View.GONE
+                noNetworkPanel.visibility = View.VISIBLE
+                TODO("无网络检查")
             }
         }
         return true
     }
 
     private fun showCantPlayTip() {
-        if (progressBar.visibility == View.VISIBLE) {
-            progressBar.visibility = View.GONE
-        }
+        progressBar.visibility = View.GONE
         toast.setText(R.string.cant_play_tip)
         toast.show()
     }
@@ -717,13 +772,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     // 播放服务器中设置的播放源
     private fun play() {
         if (mediaPlayer != null) {
-            if (progressBar.visibility == View.GONE) {
-                progressBar.visibility = View.VISIBLE
-            }
+            progressBar.visibility = View.VISIBLE
             mediaPlayer?.reset()
-//            mediaPlayer?.release()
-//            mediaPlayer = null
-//            initPlayer()
 
             val videoSv = findViewById<SurfaceView>(R.id.video_sv)
             mediaPlayer?.setDisplay(videoSv.holder)
@@ -808,6 +858,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     override fun onInfo(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
         Log.e(TAG, "onInfo: i: $i i1: $i1")
+        noNetworkPanel.visibility = View.GONE   // 有Info说明有动态，视频播放是活着的，则将无网络面板隐藏
         when (i) {
             IMediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING -> Log.e(TAG, "MEDIA_INFO_VIDEO_TRACK_LAGGING:")
             IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> Log.e(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:")
@@ -928,7 +979,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     private class MyHandler(activity: MediaPlayerActivity) : Handler() {
 
-        internal var weakReference: WeakReference<MediaPlayerActivity> = WeakReference(activity)
+        var weakReference: WeakReference<MediaPlayerActivity> = WeakReference(activity)
 
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)

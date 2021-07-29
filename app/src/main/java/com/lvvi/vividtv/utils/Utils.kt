@@ -1,5 +1,8 @@
 package com.lvvi.vividtv.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,4 +41,15 @@ object Utils {
         return 0
     }
 
+    // 判断是否有网络访问
+    fun isNetworkConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager.activeNetwork
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+            networkCapabilities != null && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } else {
+            connectivityManager.activeNetworkInfo?.isAvailable ?: false
+        }
+    }
 }
