@@ -40,7 +40,7 @@ object Constant {
             + CCTV_1 + "," + CCTV_2 + "," + CCTV_3 + "," + CCTV_4 + "," + CCTV_7 + "," + CCTV_13
             + "," + CCTV_CHILD + "," + CCTV_EUROPE + "," + CCTV_AMERICA + "," + CCTV_5 + ","
             + CCTV_5PLUS + "," + CCTV_6 + "," + CCTV_8 + "," + CCTV_JILU + "," + CCTV_10 + ","
-            + CCTV_11 + "," + CCTV_12 + "," + CCTV_15 + "," + CCTV_17)
+            + CCTV_11 + "," + CCTV_12 + "," + CCTV_13 + "," + CCTV_15 + "," + CCTV_17)
 
 
     const val LEANCLOUD_APP_ID = "7CQcmGSw9nOKFOOAOFymKAhc-9Nh9j0Va"
