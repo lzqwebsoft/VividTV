@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.database.Observable
 import android.media.AudioManager
 import android.os.*
 import android.provider.Settings
@@ -35,11 +34,16 @@ import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.utils.Utils
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
-import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.net.InetSocketAddress
+import java.net.Socket
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
@@ -754,10 +758,30 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
             val error = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_ERROR)
             val httpCode = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_HTTP_CODE)
             if (fileSize == -1L && httpCode == 0 && error == -1001) {
-                // 连接直播源服务器失败
-                progressBar.visibility = View.GONE
-                noNetworkPanel.visibility = View.VISIBLE
-                TODO("无网络检查")
+                // 连接直播源服务器失败，这个时候检查网络连接问题
+                val job = Job()
+                val coroutineScope = CoroutineScope(job)
+                coroutineScope.launch {
+                    var socket: Socket? = null
+                    try {
+                        socket = Socket()
+                        socket.connect(InetSocketAddress("223.5.5.5", 53), 1500) // 阿里公共DNS
+                        socket.keepAlive = true
+                        socket.soTimeout = 10
+                        if (socket.isConnected) {
+                            socket.sendUrgentData(0xFF)
+                            Log.d(TAG, "连接成功")
+                        }
+                    } catch (e: IOException) {
+                        Log.e(TAG, "没有网络：${e.message}")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            progressBar.visibility = View.GONE
+                            noNetworkPanel.visibility = View.VISIBLE
+                        }
+                    } finally {
+                        socket?.close()
+                    }
+                }
             }
         }
         return true
