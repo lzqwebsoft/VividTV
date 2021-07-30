@@ -30,4 +30,6 @@
 
     <string name="no_network">没有网络，请检查您的网络设置</string>
     <string name="click_retry">点击重试</string>
+
+    <string name="about_message">本软件的播放核心是基于B站开发的ijkplayer，基础代码fork于lvliheng的VividTV项目。这些项目都可以在Github上找到源码，作者只是在原有基础上整合并增加了一些微不足道的业务代码，希望能赢得你的喜爱。\n当前版本：%s\n项目地址：https://github.com/lzqwebsoft/VividTV</string>
 </resources>

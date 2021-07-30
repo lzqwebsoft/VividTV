@@ -32,6 +32,7 @@ import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.utils.Utils
+import com.lvvi.vividtv.widget.MyAlertDialog
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +57,6 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     IMediaPlayer.OnErrorListener, IMediaPlayer.OnInfoListener, IMediaPlayer.OnBufferingUpdateListener, IjkMediaPlayer.OnNativeInvokeListener {
 
     companion object {
-
         private const val TAG = "MediaPlayerActivity"
         private const val CUSTOM_SOURCE_ID = "custom"
         const val PERMISSION_REQUEST_MANAGE_UNKNOWN_APP_SOURCES = 101
@@ -92,6 +92,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
     private lateinit var sourceLinkBtn: Button       // 播放源按钮
     private lateinit var sourceHistoryBtn: Button    // 播放足迹按钮
+    private lateinit var aboutBtn: Button            // 软件关于按钮
 
     private lateinit var infoLl: LinearLayout        // 节目信息面板
     private lateinit var infoTv: TextView            // 节目名称
@@ -107,8 +108,8 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     private lateinit var settingLottieAnimationView: LottieAnimationView
     private lateinit var settingSeekBar: SeekBar
 
-    private var currNamePosition: Int = 0
-    private var currLinePosition: Int = 0
+    private var currNamePosition: Int = 0           // 当前播放频道索引
+    private var currLinePosition: Int = 0           // 当前播放频道的直播源索引
     private lateinit var currUrl: String
     private lateinit var currId: String
 
@@ -260,6 +261,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         nameRl = findViewById(R.id.name_rl)              // 播放源面板
         sourceLinkBtn = findViewById(R.id.source_link)   // 播放源地址按钮
         sourceHistoryBtn = findViewById(R.id.history)    // 播放源足迹按钮
+        aboutBtn = findViewById(R.id.about)              // 播放器关于按钮
 
         infoLl = findViewById(R.id.info_ll)    // 节目信息面板
         infoTv = findViewById(R.id.info_tv)    // 节目名称
@@ -323,6 +325,12 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 play(it)
             }
             dialog.show()
+        }
+
+        // 点击关于按钮，弹出软件关于信息
+        aboutBtn.setOnClickListener {
+            val alert = MyAlertDialog(this@MediaPlayerActivity)
+            alert.show("关于", getString(R.string.about_message, BuildConfig.VERSION_NAME))
         }
 
         // 选择播放源，显示节目预览信息
@@ -727,159 +735,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         }
     }
 
-    override fun onError(mediaPlayer: IMediaPlayer, framework_err: Int, impl_err: Int): Boolean {
-        Log.e(TAG, "onError: i: $framework_err i1: $impl_err")
-        if (Utils.isNetworkConnected(this)) {
-            if (currUrl == channelsBeans[currNamePosition].url1) {
-                tryOtherLine()
-            } else {
-                showCantPlayTip()
-                if (framework_err == -10000) {
-                    currUrl = channelsBeans[currNamePosition].url1.toString()
-                    currId = channelsBeans[currNamePosition].id!!
-                    mediaPlayer.release()
-                    initPlayer()
-                    play(currUrl)
-                }
-            }
-        } else {
-            // 没有网络显示无网络页面
-            progressBar.visibility = View.GONE
-            noNetworkPanel.visibility = View.VISIBLE
-        }
-        return true
-    }
-
-    // 监听播放器网络播放处理
-    override fun onNativeInvoke(what: Int, args: Bundle?): Boolean {
-        Log.i(TAG, "what: $what, $args")
-        if (what == IjkMediaPlayer.OnNativeInvokeListener.EVENT_DID_HTTP_OPEN && args != null) {
-            val fileSize = args.getLong(IjkMediaPlayer.OnNativeInvokeListener.ARG_FILE_SIZE)
-            val error = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_ERROR)
-            val httpCode = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_HTTP_CODE)
-            if (fileSize == -1L && httpCode == 0 && error == -1001) {
-                // 连接直播源服务器失败，这个时候检查网络连接问题
-                val job = Job()
-                val coroutineScope = CoroutineScope(job)
-                coroutineScope.launch {
-                    var socket: Socket? = null
-                    try {
-                        socket = Socket()
-                        socket.connect(InetSocketAddress("223.5.5.5", 53), 1500) // 阿里公共DNS
-                        socket.keepAlive = true
-                        socket.soTimeout = 10
-                        if (socket.isConnected) {
-                            socket.sendUrgentData(0xFF)
-                            Log.d(TAG, "连接成功")
-                        }
-                    } catch (e: IOException) {
-                        Log.e(TAG, "没有网络：${e.message}")
-                        CoroutineScope(Dispatchers.Main).launch {
-                            progressBar.visibility = View.GONE
-                            noNetworkPanel.visibility = View.VISIBLE
-                        }
-                    } finally {
-                        socket?.close()
-                    }
-                }
-            }
-        }
-        return true
-    }
-
-    private fun showCantPlayTip() {
-        progressBar.visibility = View.GONE
-        toast.setText(R.string.cant_play_tip)
-        toast.show()
-    }
-
-    // 播放服务器中设置的播放源
-    private fun play() {
-        if (mediaPlayer != null) {
-            progressBar.visibility = View.VISIBLE
-            mediaPlayer?.reset()
-
-            val videoSv = findViewById<SurfaceView>(R.id.video_sv)
-            mediaPlayer?.setDisplay(videoSv.holder)
-            try {
-                if (currNamePosition < channelsBeans.size) {
-                    currId = channelsBeans[currNamePosition].id!!
-                    currUrl = channelsBeans[currNamePosition].url1!!
-
-                    saveLastData()
-
-                    mediaPlayer?.dataSource = currUrl
-                    mediaPlayer?.setScreenOnWhilePlaying(true)
-
-                    nameAdapter.setCurrId(currId)
-                    nameAdapter.notifyDataSetChanged()
-
-                    mediaPlayer?.prepareAsync()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                showCantPlayTip()
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                showCantPlayTip()
-            }
-        }
-    }
-
-    // 播放用户自定义的播放源
-    private fun play(link: String) {
-        if (mediaPlayer != null) {
-            if (progressBar.visibility == View.GONE) {
-                progressBar.visibility = View.VISIBLE
-            }
-            mediaPlayer?.reset()
-            // 切换直播源需在重新设置一下SurfaceView
-            val videoSv = findViewById<SurfaceView>(R.id.video_sv)
-            mediaPlayer?.setDisplay(videoSv.holder)
-            try {
-                currId = CUSTOM_SOURCE_ID
-                currUrl = link
-                saveLastData()
-                mediaPlayer?.dataSource = currUrl
-                mediaPlayer?.setScreenOnWhilePlaying(true)
-                nameAdapter.setCurrId(currId)
-                nameAdapter.notifyDataSetChanged()
-
-                mediaPlayer?.prepareAsync()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                showCantPlayTip()
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                showCantPlayTip()
-            }
-        }
-    }
-
-    private fun tryOtherLine() {
-        try {
-            if (channelsBeans[currNamePosition].url2!!.isNotEmpty()) {
-                currLinePosition += 1
-                currUrl = channelsBeans[currNamePosition].url2!!
-
-                saveLastData()
-
-                val videoSv = findViewById<SurfaceView>(R.id.video_sv)
-                mediaPlayer?.setDisplay(videoSv.holder)
-                mediaPlayer?.dataSource = currUrl
-            } else {
-                showCantPlayTip()
-            }
-        } catch (e: Exception) {
-            showCantPlayTip()
-        }
-    }
-
-    private fun saveLastData() {
-        MyApplication.get().setLastId(this, currId)
-        MyApplication.get().setLastUrl(this, currUrl)
-    }
-
+    // 播放器播放状态回调
     override fun onInfo(mediaPlayer: IMediaPlayer, i: Int, i1: Int): Boolean {
         Log.e(TAG, "onInfo: i: $i i1: $i1")
         noNetworkPanel.visibility = View.GONE   // 有Info说明有动态，视频播放是活着的，则将无网络面板隐藏
@@ -924,8 +780,142 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         return true
     }
 
+    // 播放器缓存状态更新回调
     override fun onBufferingUpdate(mediaPlayer: IMediaPlayer, i: Int) {
         Log.i(TAG, "onBufferingUpdate: $i")
+    }
+
+    // 播放器发生错误时回调
+    override fun onError(mediaPlayer: IMediaPlayer, framework_err: Int, impl_err: Int): Boolean {
+        Log.e(TAG, "onError: i: $framework_err i1: $impl_err")
+        if (Utils.isNetworkConnected(this)) {
+            if (currUrl == channelsBeans[currNamePosition].url1) {
+                tryOtherLine()
+            } else {
+                showCantPlayTip()
+                if (framework_err == -10000) {
+                    currUrl = channelsBeans[currNamePosition].url1.toString()
+                    currId = channelsBeans[currNamePosition].id!!
+                    mediaPlayer.release()
+                    initPlayer()
+                    play(currUrl)
+                }
+            }
+        } else {
+            // 没有网络显示无网络页面
+            progressBar.visibility = View.GONE
+            noNetworkPanel.visibility = View.VISIBLE
+        }
+        return true
+    }
+
+    // 监听播放器网络播放处理（IJKPlayer播方器独有回调）
+    override fun onNativeInvoke(what: Int, args: Bundle?): Boolean {
+        Log.i(TAG, "what: $what, $args")
+        if (what == IjkMediaPlayer.OnNativeInvokeListener.EVENT_DID_HTTP_OPEN && args != null) {
+            val fileSize = args.getLong(IjkMediaPlayer.OnNativeInvokeListener.ARG_FILE_SIZE)
+            val error = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_ERROR)
+            val httpCode = args.getInt(IjkMediaPlayer.OnNativeInvokeListener.ARG_HTTP_CODE)
+            if (fileSize == -1L && httpCode == 0 && error == -1001) {
+                // 连接直播源服务器失败，这个时候检查网络连接问题
+                val job = Job()
+                val coroutineScope = CoroutineScope(job)
+                coroutineScope.launch {
+                    var socket: Socket? = null
+                    try {
+                        socket = Socket()
+                        socket.connect(InetSocketAddress("223.5.5.5", 53), 1500) // 阿里公共DNS
+                        socket.keepAlive = true
+                        socket.soTimeout = 10
+                        if (socket.isConnected) {
+                            socket.sendUrgentData(0xFF)
+                            Log.d(TAG, "连接成功")
+                        }
+                    } catch (e: IOException) {
+                        Log.e(TAG, "没有网络：${e.message}")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            progressBar.visibility = View.GONE
+                            noNetworkPanel.visibility = View.VISIBLE
+                        }
+                    } finally {
+                        socket?.close()
+                    }
+                }
+            }
+        }
+        return true
+    }
+
+    // 显示不可播放
+    private fun showCantPlayTip() {
+        progressBar.visibility = View.GONE
+        toast.setText(R.string.cant_play_tip)
+        toast.show()
+    }
+
+    // 播放服务器中设置的播放源
+    private fun play() {
+        if (currNamePosition < channelsBeans.size) {
+            currId = channelsBeans[currNamePosition].id!!
+            currUrl = channelsBeans[currNamePosition].url1!!
+
+            currLinePosition = 0
+
+            play(currUrl, currId)
+        }
+    }
+
+    // 播放用户自定义的播放源
+    private fun play(sourceURL: String, sourceID: String = CUSTOM_SOURCE_ID) {
+        if (mediaPlayer != null) {
+            progressBar.visibility = View.VISIBLE
+            mediaPlayer?.reset()
+            // 切换直播源需在重新设置一下SurfaceView
+            val videoSv = findViewById<SurfaceView>(R.id.video_sv)
+            mediaPlayer?.setDisplay(videoSv.holder)
+            try {
+                currId = sourceID
+                currUrl = sourceURL
+
+                saveLastData()
+
+                mediaPlayer?.dataSource = currUrl
+                mediaPlayer?.setScreenOnWhilePlaying(true)
+
+                nameAdapter.setCurrId(currId)
+                nameAdapter.notifyDataSetChanged()
+
+                mediaPlayer?.prepareAsync()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                showCantPlayTip()
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                showCantPlayTip()
+            }
+        }
+    }
+
+    // 切换其他源尝试播放
+    private fun tryOtherLine() {
+        try {
+            if (channelsBeans[currNamePosition].url2!!.isNotEmpty()) {
+                currLinePosition += 1
+                currUrl = channelsBeans[currNamePosition].url2!!
+
+                play(currUrl, currId)
+            } else {
+                showCantPlayTip()
+            }
+        } catch (e: Exception) {
+            showCantPlayTip()
+        }
+    }
+
+    // 记录当前播放器的直播源，方便应用下次还原播放
+    private fun saveLastData() {
+        MyApplication.get().setLastId(this, currId)
+        MyApplication.get().setLastUrl(this, currUrl)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -941,8 +931,20 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 return false
             }
             KeyEvent.KEYCODE_MENU -> return false
-            KeyEvent.KEYCODE_DPAD_UP -> return false
-            KeyEvent.KEYCODE_DPAD_DOWN -> return false
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (isOpenMenu()) return false
+                // 上键上翻频道
+                currNamePosition = if (currNamePosition - 1 >= 0) currNamePosition - 1 else channelsBeans.size - 1
+                play()
+                return false
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (isOpenMenu()) return false
+                // 下键下翻频道
+                currNamePosition = if (currNamePosition + 1 < channelsBeans.size) currNamePosition + 1 else 0
+                play()
+                return false
+            }
             KeyEvent.KEYCODE_DPAD_LEFT -> {
                 mediaPlayer?.seekTo(mediaPlayer?.currentPosition!!.minus(60 * 1000))
                 return false
@@ -965,6 +967,10 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
         } else {
             false
         }
+    }
+
+    private fun isOpenMenu(): Boolean {
+        return nameRl.visibility == View.VISIBLE
     }
 
     private fun openMenu() {

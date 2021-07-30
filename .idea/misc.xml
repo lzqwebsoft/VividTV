@@ -8,11 +8,22 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/about_button.xml" value="0.38229166666666664" />
         <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/bg_button_default.xml" value="0.38229166666666664" />
         <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/dialog_source_link_bg.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/footprint_button.xml" value="0.38229166666666664" />
         <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_footprint.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_footprint_selected.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_info.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_info_selected.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_launcher_background.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_link.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_link_pressed.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_link_selected.xml" value="0.38229166666666664" />
         <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/ic_no_network.xml" value="0.38229166666666664" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/drawable/source_link_button.xml" value="0.38229166666666664" />
         <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/layout/activity_media_player.xml" value="0.22826086956521738" />
+        <entry key="..\:/android_wrokspace/VividTV/app/src/main/res/layout/dialog_alert.xml" value="0.36614583333333334" />
       </map>
     </option>
   </component>
