@@ -3,7 +3,6 @@ package com.lvvi.vividtv.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -32,6 +31,7 @@ import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.utils.Utils
+import com.lvvi.vividtv.widget.ConfirmDialog
 import com.lvvi.vividtv.widget.MyAlertDialog
 import com.lvvi.vividtv.widget.SourceHistoryDialog
 import com.lvvi.vividtv.widget.SourceLinkDialog
@@ -182,26 +182,16 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 }
                 // 查询服务器检查需要更新软件版本
                 if (needUpdate) {
-                    val builder = AlertDialog.Builder(this)
-                    builder.setTitle(getString(R.string.find_new_version))
-                    builder.setMessage(getString(R.string.confirm_upgrade_apk, currentVersion, last))
-
-                    builder.setNegativeButton(getString(R.string.dialog_cancel_button)) { p0, _ ->
-                        p0?.dismiss()
-                    }
-
-                    builder.setPositiveButton(getString(R.string.dialog_ok_button)) { p0, _ ->
-                        p0?.dismiss()
-
+                    val confirmDialog = ConfirmDialog(this)
+                    confirmDialog.confirmListener = {
                         // 开始下载APK
                         val fileName = "VividTV_v${last}_release.apk"
                         downloadBinder?.startDownload(url, fileName)
                     }
-
-                    builder.setCancelable(true)
-
-                    val dialog = builder.create()
-                    dialog.show()
+                    confirmDialog.show(
+                        getString(R.string.find_new_version), getString(R.string.confirm_upgrade_apk, currentVersion, last),
+                        getString(R.string.dialog_cancel_button), getString(R.string.dialog_ok_button)
+                    )
                 }
             }
         }, { e ->
@@ -231,13 +221,16 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
     // 绑定并启动节目更新服务
     private fun bindService() {
         connection = object : ServiceConnection {
-            override fun onServiceDisconnected(p0: ComponentName?) {
+            override fun onServiceDisconnected(name: ComponentName?) {
+                // 服务解绑时执行
             }
 
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                // 服务绑定时执行
             }
         }
         Intent(this, UpdateChannelInfoService::class.java).also { intent ->
+            // 绑定服务
             isBinderCancelInfoService = bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -385,6 +378,7 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
 
                 // 检查获取得到网络则，重新播放
                 initPlayer()
+                play()
             } else {
                 Toast.makeText(this, "没有获取到网络，请重试...", Toast.LENGTH_SHORT).show()
             }
@@ -946,10 +940,12 @@ class MediaPlayerActivity : Activity(), SurfaceHolder.Callback, IMediaPlayer.OnC
                 return false
             }
             KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (isOpenMenu()) return false
                 mediaPlayer?.seekTo(mediaPlayer?.currentPosition!!.minus(60 * 1000))
                 return false
             }
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (isOpenMenu()) return false
                 mediaPlayer?.seekTo(mediaPlayer?.currentPosition!!.plus(60 * 1000))
                 return false
             }

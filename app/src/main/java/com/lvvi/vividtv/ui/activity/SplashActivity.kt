@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -23,6 +22,7 @@ import com.lvvi.vividtv.utils.Constant
 import com.lvvi.vividtv.utils.MyApplication
 import com.lvvi.vividtv.utils.MySharePreferences
 import com.lvvi.vividtv.utils.Utils
+import com.lvvi.vividtv.widget.ConfirmDialog
 import java.lang.ref.WeakReference
 
 /**
@@ -116,7 +116,7 @@ class SplashActivity : Activity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.FOREGROUND_SERVICE),1)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.FOREGROUND_SERVICE), 1)
         }
     }
 
@@ -136,26 +136,18 @@ class SplashActivity : Activity() {
     private fun showDialog() {
         MySharePreferences.getInstance(this).putString(Constant.NEED_CHECK_PERMISSION, "0")
 
-        val builder = AlertDialog.Builder(this)
-
-        builder.setTitle(getString(R.string.dialog_title))
-        builder.setMessage(getString(R.string.dialog_message))
-
-        builder.setNegativeButton(getString(R.string.dialog_negative_button)) { p0, _ ->
-            p0?.dismiss()
+        val confirmDialog = ConfirmDialog(this)
+        confirmDialog.cancelListener = {
             Toast.makeText(this, getString(R.string.permission_tip), Toast.LENGTH_LONG).show()
             intentToMainActivity()
         }
-
-        builder.setPositiveButton(getString(R.string.dialog_positive_button)) { p0, _ ->
-            p0?.dismiss()
+        confirmDialog.confirmListener = {
             intentToSettings()
         }
-
-        builder.setCancelable(true)
-
-        val dialog = builder.create()
-        dialog.show()
+        confirmDialog.show(
+            getString(R.string.dialog_title), getString(R.string.dialog_message),
+            getString(R.string.dialog_negative_button), getString(R.string.dialog_positive_button)
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
